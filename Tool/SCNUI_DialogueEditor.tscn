@@ -1,0 +1,84 @@
+[gd_scene load_steps=4 format=3 uid="uid://c4xihcivovv24"]
+
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueScriptSyntaxHighlighter.cs" id="1_s0xp0"]
+
+[sub_resource type="SyntaxHighlighter" id="SyntaxHighlighter_6sdl7"]
+script = ExtResource("1_s0xp0")
+_foregroundColour = Color(1, 1, 1, 1)
+
+[node name="Editor" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_frnyd")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="Toolbar" type="Panel" parent="MarginContainer/VBoxContainer2"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/VBoxContainer2/Toolbar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer"]
+layout_mode = 2
+
+[node name="New" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "New"
+
+[node name="Load" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Load"
+
+[node name="Save" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Save"
+
+[node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Export" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Export"
+
+[node name="Script" type="CodeEdit" parent="MarginContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+draw_tabs = true
+syntax_highlighter = SubResource("SyntaxHighlighter_6sdl7")
+scroll_smooth = true
+gutters_draw_line_numbers = true
