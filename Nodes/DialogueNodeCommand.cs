@@ -1,6 +1,6 @@
 using Godot;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Dialogue.Nodes;
 
 /// <summary>
 /// The only reason this thing exists is because Godot still doesn't support exporting tuples and/or dictionaries
@@ -9,7 +9,7 @@ namespace SadChromaLib.Dialogue;
 public sealed partial class DialogueNodeCommand: Resource
 {
 	[Export]
-	public string Name;
+	public StringName Name;
 
 	[Export]
 	public string Parameter;

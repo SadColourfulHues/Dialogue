@@ -1,12 +1,12 @@
 using Godot;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Dialogue.Nodes;
 
 /// <summary>
 /// An object that represents a block of dialogue.
 /// </summary>
 [GlobalClass]
-public partial class DialogueNode: Resource
+public sealed partial class DialogueNode: Resource
 {
 	[Export]
 	public StringName Tag;

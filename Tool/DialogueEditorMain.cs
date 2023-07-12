@@ -1,6 +1,8 @@
 using Godot;
 using System;
 
+using SadChromaLib.Dialogue.Nodes;
+
 namespace SadChromaLib.Dialogue.Editor;
 
 public sealed partial class DialogueEditorMain : Control

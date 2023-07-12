@@ -3,22 +3,27 @@ using Godot;
 using System;
 using System.Text;
 
+using SadChromaLib.Dialogue.Nodes;
+
 namespace SadChromaLib.Dialogue;
 
 public sealed partial class DialogueParser: RefCounted
 {
 	private const string TagStart = "start";
 	private const string ScriptTerminator = "\nEOF:";
+
 	private const int MaxDialogueNodeCount = 512;
+	private const int MaxDialogueLineLength = 4096;
 
-	private int MaxCommands = 5;
-	private int MaxChoices = 4;
+	private const int MaxCommands = 5;
+	private const int MaxChoices = 4;
 
-	private State _state;
 	private readonly StringBuilder _dialogueLineBuilder;
 
 	private readonly (string Command, string Parameters)?[] _lastCommands;
 	private readonly (string ChoiceText, string TargetTag)?[] _lastChoices;
+
+	private State _state;
 
 	private int _nodeIdx;
 	private int _commandIdx;
@@ -344,6 +349,64 @@ public sealed partial class DialogueParser: RefCounted
 		return line.ToString();
 	}
 
+	public static string ParseAndResolveVariables(string text, Func<StringName, string> resolveCallback)
+	{
+		ReadOnlySpan<char> characters = text;
+
+		// Naive variable usage test
+		if (!characters.Contains('$'))
+			return text;
+
+		Span<char> tmpString = stackalloc char[MaxDialogueLineLength];
+		int strIdx = 0;
+		int? startIdx = null;
+		int endLen = characters.Length - 1;
+
+		for (int i = 0; i < characters.Length; ++ i) {
+			bool isEndOfLine = i == endLen;
+
+			// Look for variable end
+			if (startIdx != null &&
+				(IsVariableTerminator(characters[i]) || isEndOfLine))
+			{
+				ReadOnlySpan<char> variableName;
+				int sliceLen;
+
+				if (isEndOfLine) {
+					sliceLen = endLen - startIdx.Value;
+					variableName = characters[startIdx.Value..];
+				}
+				else {
+					sliceLen = i - startIdx.Value;
+					variableName = characters.Slice(startIdx.Value, sliceLen);
+				}
+
+				strIdx -= sliceLen;
+
+				ReadOnlySpan<char> variableValue = resolveCallback.Invoke(variableName.ToString());
+
+				// Overwrite variable name with value
+				for (int j = 0; j < variableValue.Length; ++ j) {
+					tmpString[strIdx] = variableValue[j];
+					strIdx ++;
+				}
+
+				startIdx = null;
+			}
+			// Look for variable start
+			else if (startIdx == null && characters[i] == '$') {
+				startIdx = i + 1;
+			}
+			// Copy non-variable characters as-is
+			else {
+				tmpString[strIdx] = characters[i];
+				strIdx ++;
+			}
+		}
+
+		return tmpString[..strIdx].ToString();
+	}
+
 	#endregion
 
 	#region Helpers
@@ -543,6 +606,11 @@ public sealed partial class DialogueParser: RefCounted
 		}
 
 		return true;
+	}
+
+	public static bool IsVariableTerminator(char c)
+	{
+		return char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c);
 	}
 
 	#endregion

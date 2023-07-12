@@ -39,10 +39,12 @@ Stranger:
 Stranger:
 You know what, I can carry this thing myself.
 
-Stranger:
-I don't need anybody's help!
+@shake b
 
-@refuse_help
+Stranger:
+I never wanted your help anyway!
+
+@walk_away
 @close
 
 # Command statements will execute the specified instruction once the block has been completed.
@@ -90,6 +92,8 @@ Your name is $playerName, right?
 	Not really
 	[pointless_choice]
 
+@shake a
+
 # You can use variables to 'personalise' your dialogue
 # These can be set through the 'player' object and will be automatically replaced at runtime.
 
@@ -98,10 +102,15 @@ Stranger:
 ...
 
 Stranger:
+$playerName
+
+Stranger:
 You're wearing a name tag.
 
 Stranger:
 Anyways, see you later.
+
+@shake a
 
 Stranger:
 Please take them somewhere else.

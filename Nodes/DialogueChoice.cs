@@ -1,6 +1,6 @@
 using Godot;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Dialogue.Nodes;
 
 [GlobalClass]
 public sealed partial class DialogueChoice: Resource

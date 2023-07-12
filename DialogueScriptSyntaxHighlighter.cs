@@ -72,9 +72,17 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 		int? start = null;
 
 		for (int i = 0; i < line.Length; ++ i) {
-			if (start != null && IsVariableTerminator(line[i])) {
+			bool isEndOfLine = i == line.Length - 1;
+
+			if (start != null &&
+				(DialogueParser.IsVariableTerminator(line[i]) || isEndOfLine))
+			{
 				result[start.Value] = _variableColourDict;
-				result[i] = _foregroundColour;
+
+				if (!isEndOfLine) {
+					result[i] = _foregroundColour;
+				}
+
 				return;
 			}
 
@@ -84,11 +92,6 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 				start = i;
 			}
 		}
-	}
-
-	private static bool IsVariableTerminator(char c)
-	{
-		return char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c);
 	}
 
 	private static Dictionary<StringName, Color> MakeColourDict(Color colour)
