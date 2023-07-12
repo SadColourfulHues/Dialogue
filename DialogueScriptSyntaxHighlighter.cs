@@ -20,6 +20,7 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 	public DialogueScriptSyntaxHighlighter()
 	{
 		_colourDicts = new() {
+			[DialogueParser.Type.Comment] = MakeColourDict(Colors.GreenYellow),
 			[DialogueParser.Type.CharacterId] = MakeColourDict(Colors.SkyBlue),
 			[DialogueParser.Type.Tag] = MakeColourDict(Colors.Orange),
 			[DialogueParser.Type.Choice] = MakeColourDict(Colors.Cornsilk),
@@ -27,7 +28,7 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 			[DialogueParser.Type.DialogueLine] = MakeColourDict(_foregroundColour)
 		};
 
-		_variableColourDict = MakeColourDict(Colors.SteelBlue);
+		_variableColourDict = MakeColourDict(Colors.SeaGreen);
 		_targetTagColourDict = MakeColourDict(Colors.Salmon);
 	}
 

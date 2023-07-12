@@ -1,7 +1,43 @@
-[gd_scene load_steps=4 format=3 uid="uid://c4xihcivovv24"]
+[gd_scene load_steps=12 format=3 uid="uid://c4xihcivovv24"]
 
 [ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
 [ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueScriptSyntaxHighlighter.cs" id="1_s0xp0"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_5ndw0"]
+device = -1
+command_or_control_autoremap = true
+keycode = 78
+unicode = 110
+
+[sub_resource type="Shortcut" id="Shortcut_fa373"]
+events = [SubResource("InputEventKey_5ndw0")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_b1ksy"]
+device = -1
+command_or_control_autoremap = true
+keycode = 79
+unicode = 111
+
+[sub_resource type="Shortcut" id="Shortcut_loth2"]
+events = [SubResource("InputEventKey_b1ksy")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_eqtj6"]
+device = -1
+command_or_control_autoremap = true
+keycode = 83
+unicode = 115
+
+[sub_resource type="Shortcut" id="Shortcut_epjha"]
+events = [SubResource("InputEventKey_eqtj6")]
+
+[sub_resource type="InputEventKey" id="InputEventKey_hju6s"]
+device = -1
+command_or_control_autoremap = true
+keycode = 69
+unicode = 101
+
+[sub_resource type="Shortcut" id="Shortcut_qo80f"]
+events = [SubResource("InputEventKey_hju6s")]
 
 [sub_resource type="SyntaxHighlighter" id="SyntaxHighlighter_6sdl7"]
 script = ExtResource("1_s0xp0")
@@ -53,16 +89,19 @@ layout_mode = 2
 [node name="New" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+shortcut = SubResource("Shortcut_fa373")
 text = "New"
 
 [node name="Load" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+shortcut = SubResource("Shortcut_loth2")
 text = "Load"
 
 [node name="Save" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+shortcut = SubResource("Shortcut_epjha")
 text = "Save"
 
 [node name="Spacer" type="Control" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
@@ -72,6 +111,7 @@ size_flags_horizontal = 3
 [node name="Export" type="Button" parent="MarginContainer/VBoxContainer2/Toolbar/MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+shortcut = SubResource("Shortcut_qo80f")
 text = "Export"
 
 [node name="Script" type="CodeEdit" parent="MarginContainer/VBoxContainer2"]

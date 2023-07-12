@@ -8,9 +8,10 @@ namespace SadChromaLib.Dialogue;
 public sealed partial class DialogueParser: RefCounted
 {
 	private const string TagStart = "start";
+	private const string ScriptTerminator = "\nEOF:";
 	private const int MaxDialogueNodeCount = 512;
 
-	private int MaxCommands = 3;
+	private int MaxCommands = 5;
 	private int MaxChoices = 4;
 
 	private State _state;
@@ -96,10 +97,8 @@ public sealed partial class DialogueParser: RefCounted
 
 		Span<DialogueNode> nodes = new DialogueNode[MaxDialogueNodeCount];
 
-		ReadOnlySpan<string> lines = dialogue
+		ReadOnlySpan<string> lines = (dialogue + ScriptTerminator)
 			.Split("\n");
-
-		_nodeIdx = 0;
 
 		for (int i = 0; i < lines.Length; ++ i) {
 			ReadOnlySpan<char> line = lines[i];
@@ -110,7 +109,7 @@ public sealed partial class DialogueParser: RefCounted
 			Type type = GetLineType(line);
 			StripTabs(ref line);
 
-			ProcessLine(line, type, ref nodes);
+			Process(line, type, ref nodes);
 		}
 
 		return new() {
@@ -118,7 +117,11 @@ public sealed partial class DialogueParser: RefCounted
 		};
 	}
 
-	private void ProcessLine(ReadOnlySpan<char> line, Type type, ref Span<DialogueNode> nodes)
+	#endregion
+
+	#region State Machine
+
+	private void Process(ReadOnlySpan<char> line, Type type, ref Span<DialogueNode> nodes)
 	{
 		switch (_state) {
 			case State.Idle:
@@ -129,40 +132,40 @@ public sealed partial class DialogueParser: RefCounted
 				ProcessDialogueLine(line, type, ref nodes);
 				break;
 
+			case State.Command:
+				ProcessCommand(line, type, ref nodes);
+				break;
+
 			case State.Choice:
 				ProcessChoice(line, type, ref nodes);
 				break;
 		}
 	}
 
-	#endregion
-
-	#region State Machine
-
 	private void ProcessIdle(ReadOnlySpan<char> line, Type type, ref Span<DialogueNode> nodes)
 	{
 		switch (type) {
-			case Type.CharacterId:
-				_lastCharacterName = ParseCharacterId(line);
-				_state = State.Dialogue;
+			case Type.Command:
+				_state = State.Command;
+				Process(line, type, ref nodes);
+				break;
+
+			case Type.Choice:
+				_state = State.Choice;
+				Process(line, type, ref nodes);
 				break;
 
 			case Type.DialogueLine:
 				AppendDialogueLine(line);
 				break;
 
-			case Type.Command:
-				CommandInfo command = ParseCommand(line);
-				AppendCommand(command);
-				break;
-
 			case Type.Tag:
 				_lastTagId = ParseTagId(line);
 				break;
 
-			case Type.Choice:
-				_state = State.Choice;
-				ProcessLine(line, type, ref nodes);
+			case Type.CharacterId:
+				_state = State.Dialogue;
+				_lastCharacterName = ParseCharacterId(line);
 				break;
 		}
 	}
@@ -175,7 +178,6 @@ public sealed partial class DialogueParser: RefCounted
 		}
 
 		CreateAndAppendNode(ref nodes);
-		ClearCommands();
 
 		// Assign unique ID for untagged nodes
 		_lastTagId = $"node_{_id}";
@@ -185,7 +187,43 @@ public sealed partial class DialogueParser: RefCounted
 		// continue parsing the current line back in its regular state
 
 		_state = State.Idle;
-		ProcessLine(line, type, ref nodes);
+		Process(line, type, ref nodes);
+	}
+
+	private void ProcessCommand(ReadOnlySpan<char> line, Type type, ref Span<DialogueNode> nodes)
+	{
+		if (type == Type.Command) {
+			CommandInfo commandInfo = ParseCommand(line);
+			AppendCommand(commandInfo);
+			return;
+		}
+
+		if (_lastNodeRef != null) {
+			ReadOnlySpan<(string, string)?> commands = _lastCommands;
+			Span<DialogueNodeCommand> commandList = new DialogueNodeCommand[MaxCommands];
+			int commandIdx = 0;
+
+			for (int i = 0; i < MaxCommands; ++ i) {
+				if (commands[i] == null)
+					continue;
+
+				(string commandName, string parameter) = commands[i].Value;
+
+				commandList[commandIdx] = new() {
+					Name = commandName,
+					Parameter = parameter
+				};
+
+				commandIdx ++;
+			}
+
+			_lastNodeRef.CommandList = commandList[..commandIdx].ToArray();
+		}
+
+		ClearCommands();
+
+		_state = State.Idle;
+		Process(line, type, ref nodes);
 	}
 
 	private void ProcessChoice(ReadOnlySpan<char> line, Type type, ref Span<DialogueNode> nodes)
@@ -240,7 +278,7 @@ public sealed partial class DialogueParser: RefCounted
 			ClearChoices();
 
 			_state = State.Idle;
-			ProcessLine(line, type, ref nodes);
+			Process(line, type, ref nodes);
 		}
 	}
 
@@ -323,26 +361,6 @@ public sealed partial class DialogueParser: RefCounted
 			Choices = null
 		};
 
-		ReadOnlySpan<(string, string)?> commands = _lastCommands;
-		Span<DialogueNodeCommand> commandList = new DialogueNodeCommand[MaxCommands];
-		int commandIdx = 0;
-
-		for (int i = 0; i < MaxCommands; ++ i) {
-			if (commands[i] == null)
-				continue;
-
-			(string commandName, string parameter) = commands[i].Value;
-
-			commandList[commandIdx] = new() {
-				Name = commandName,
-				Parameter = parameter
-			};
-
-			commandIdx ++;
-		}
-
-		_lastNodeRef.CommandList = commandList[..commandIdx].ToArray();
-
 		AppendNode(_lastNodeRef, ref nodes);
 	}
 
@@ -418,6 +436,7 @@ public sealed partial class DialogueParser: RefCounted
 
 		_commandIdx = 0;
 		_choiceIdx = 0;
+		_nodeIdx = 0;
 
 		ClearCommands();
 		ClearChoices();
@@ -451,7 +470,17 @@ public sealed partial class DialogueParser: RefCounted
 
 	public static Type GetLineType(ReadOnlySpan<char> line)
 	{
-		if (StartsWithTab(line)) {
+		if (line.Length > 0 && line[0] == '#') {
+			return Type.Comment;
+		}
+		else if (StartsWithTab(line)) {
+			StripTabs(ref line);
+			Type innerType = GetLineType(line);
+
+			if (innerType == Type.Comment) {
+				return innerType;
+			}
+
 			return Type.Choice;
 		}
 		else if (line.Length > 1 && line[0] == '[' && line[^1] == ']') {
@@ -529,6 +558,7 @@ public sealed partial class DialogueParser: RefCounted
 	/// </summary>
 	public enum Type
 	{
+		Comment,
 		CharacterId,
 		DialogueLine,
 		Command,
@@ -543,6 +573,7 @@ public sealed partial class DialogueParser: RefCounted
 	{
 		Idle,
 		Dialogue,
+		Command,
 		Choice
 	}
 }

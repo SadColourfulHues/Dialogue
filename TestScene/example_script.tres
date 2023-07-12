@@ -1,0 +1,202 @@
+[gd_resource type="Resource" script_class="DialogueGraph" load_steps=33 format=3]
+
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueNode.cs" id="1_gjpng"]
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueChoice.cs" id="2_b1aee"]
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueNodeCommand.cs" id="3_ksi35"]
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueGraph.cs" id="4_t0h1s"]
+
+[sub_resource type="Resource" id="Resource_3vswm"]
+script = ExtResource("1_gjpng")
+Tag = &"start"
+CharacterId = &"Stranger"
+DialogueText = "Excuse me."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_5w2i2"]
+script = ExtResource("2_b1aee")
+ChoiceText = "Who are you again?"
+TargetTag = "question"
+
+[sub_resource type="Resource" id="Resource_5p24w"]
+script = ExtResource("2_b1aee")
+ChoiceText = "Sure, why not"
+TargetTag = "help"
+
+[sub_resource type="Resource" id="Resource_6ifwm"]
+script = ExtResource("1_gjpng")
+Tag = &"node_0"
+CharacterId = &"Stranger"
+DialogueText = "Can you help me out with this totally-simple-and-not-at-all-painful task?I could reaaally use a hand right now.
+"
+CommandList = null
+Choices = [SubResource("Resource_5w2i2"), SubResource("Resource_5p24w")]
+
+[sub_resource type="Resource" id="Resource_bwgjp"]
+script = ExtResource("1_gjpng")
+Tag = &"question"
+CharacterId = &"Stranger"
+DialogueText = "*sigh*"
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_3mroi"]
+script = ExtResource("1_gjpng")
+Tag = &"node_2"
+CharacterId = &"Stranger"
+DialogueText = "You know what, I can carry this thing myself."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_5dywe"]
+script = ExtResource("3_ksi35")
+Name = "refuse_help"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_xg40x"]
+script = ExtResource("3_ksi35")
+Name = "close"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_mtrbd"]
+script = ExtResource("1_gjpng")
+Tag = &"node_3"
+CharacterId = &"Stranger"
+DialogueText = "I don't need anybody's help!"
+CommandList = [SubResource("Resource_5dywe"), SubResource("Resource_xg40x")]
+Choices = null
+
+[sub_resource type="Resource" id="Resource_r7ei7"]
+script = ExtResource("1_gjpng")
+Tag = &"help"
+CharacterId = &"Stranger"
+DialogueText = "Thank you!"
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_4m3ka"]
+script = ExtResource("3_ksi35")
+Name = "add_box"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_dfpni"]
+script = ExtResource("1_gjpng")
+Tag = &"node_5"
+CharacterId = &"Stranger"
+DialogueText = "Okay... take this thing."
+CommandList = [SubResource("Resource_4m3ka")]
+Choices = null
+
+[sub_resource type="Resource" id="Resource_3spvk"]
+script = ExtResource("3_ksi35")
+Name = "add_box"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_65r3x"]
+script = ExtResource("1_gjpng")
+Tag = &"node_6"
+CharacterId = &"Stranger"
+DialogueText = "And this..."
+CommandList = [SubResource("Resource_3spvk")]
+Choices = null
+
+[sub_resource type="Resource" id="Resource_bsakh"]
+script = ExtResource("3_ksi35")
+Name = "add_box"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_ocbyk"]
+script = ExtResource("1_gjpng")
+Tag = &"node_7"
+CharacterId = &"Stranger"
+DialogueText = "Aaaand this..."
+CommandList = [SubResource("Resource_bsakh")]
+Choices = null
+
+[sub_resource type="Resource" id="Resource_ybj27"]
+script = ExtResource("1_gjpng")
+Tag = &"node_8"
+CharacterId = &"Stranger"
+DialogueText = "Thank you."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_iyasd"]
+script = ExtResource("2_b1aee")
+ChoiceText = "How did you know that?"
+TargetTag = "pointless_choice"
+
+[sub_resource type="Resource" id="Resource_8c2vx"]
+script = ExtResource("2_b1aee")
+ChoiceText = "Not really"
+TargetTag = "pointless_choice"
+
+[sub_resource type="Resource" id="Resource_abiu1"]
+script = ExtResource("1_gjpng")
+Tag = &"node_9"
+CharacterId = &"Stranger"
+DialogueText = "Your name is $playerName, right?"
+CommandList = null
+Choices = [SubResource("Resource_iyasd"), SubResource("Resource_8c2vx")]
+
+[sub_resource type="Resource" id="Resource_3nqd1"]
+script = ExtResource("1_gjpng")
+Tag = &"pointless_choice"
+CharacterId = &"Stranger"
+DialogueText = "..."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_vnt44"]
+script = ExtResource("1_gjpng")
+Tag = &"node_11"
+CharacterId = &"Stranger"
+DialogueText = "You're wearing a name tag."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_8f41c"]
+script = ExtResource("1_gjpng")
+Tag = &"node_12"
+CharacterId = &"Stranger"
+DialogueText = "Anyways, see you later."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_pu54a"]
+script = ExtResource("1_gjpng")
+Tag = &"node_13"
+CharacterId = &"Stranger"
+DialogueText = "Please take them somewhere else."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_8j2ql"]
+script = ExtResource("1_gjpng")
+Tag = &"node_14"
+CharacterId = &"Stranger"
+DialogueText = "Or keep them, if you want."
+CommandList = null
+Choices = null
+
+[sub_resource type="Resource" id="Resource_35umg"]
+script = ExtResource("3_ksi35")
+Name = "walk_away"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_qhqv4"]
+script = ExtResource("3_ksi35")
+Name = "close"
+Parameter = ""
+
+[sub_resource type="Resource" id="Resource_b0twa"]
+script = ExtResource("1_gjpng")
+Tag = &"node_15"
+CharacterId = &"Stranger"
+DialogueText = "It feels so great to finally be free from this thing!"
+CommandList = [SubResource("Resource_35umg"), SubResource("Resource_qhqv4")]
+Choices = null
+
+[resource]
+script = ExtResource("4_t0h1s")
+Nodes = [SubResource("Resource_3vswm"), SubResource("Resource_6ifwm"), SubResource("Resource_bwgjp"), SubResource("Resource_3mroi"), SubResource("Resource_mtrbd"), SubResource("Resource_r7ei7"), SubResource("Resource_dfpni"), SubResource("Resource_65r3x"), SubResource("Resource_ocbyk"), SubResource("Resource_ybj27"), SubResource("Resource_abiu1"), SubResource("Resource_3nqd1"), SubResource("Resource_vnt44"), SubResource("Resource_8f41c"), SubResource("Resource_pu54a"), SubResource("Resource_8j2ql"), SubResource("Resource_b0twa")]

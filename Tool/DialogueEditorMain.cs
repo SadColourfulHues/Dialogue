@@ -5,11 +5,15 @@ namespace SadChromaLib.Dialogue.Editor;
 
 public sealed partial class DialogueEditorMain : Control
 {
-	string[] ScriptFileFilter = {
+	private const string TitleSaveWarning = "Maybe you should save?";
+	private const string MessageNew = "This will create a new script file. Make sure to save your work if you don't want to lose them before continuing.";
+	private const string MessageOpen = "This will replace the script file you're currently working on. Make sure to save if you don't want to lose your progress.";
+
+	private string[] ScriptFileFilter = {
 		"*.txt ; Dialogue Script Files, Text Files"
 	};
 
-	string[] GraphFileFilter = {
+	private string[] GraphFileFilter = {
 		"*.tres ; Dialogue Graph Files, Godot Resource Files"
 	};
 
@@ -37,8 +41,14 @@ public sealed partial class DialogueEditorMain : Control
 
 	private void OnNewPressed()
 	{
-		_lastFilePath = null;
-		_scriptEditor.Clear();
+		StartPrompt(
+			title: TitleSaveWarning,
+			message: MessageNew,
+			callback: () => {
+				_lastFilePath = null;
+				_scriptEditor.Clear();
+			}
+		);
 	}
 
 	private void OnLoadPressed()
@@ -47,7 +57,12 @@ public sealed partial class DialogueEditorMain : Control
 			title: "Open Dialogue Script",
 			readMode: true,
 			fileFilter: ScriptFileFilter,
-			callback: ReadFileFromDisk
+			callback: (string filePath)
+			=> StartPrompt(
+				title: TitleSaveWarning,
+				message: MessageOpen,
+				callback: () => ReadFileFromDisk(filePath)
+			)
 		);
 	}
 
@@ -131,7 +146,31 @@ public sealed partial class DialogueEditorMain : Control
 		};
 
 		dialogRef.Canceled += dialogRef.QueueFree;
+
 		dialogRef.PopupCentered(new(300,420));
+	}
+
+	private void StartPrompt(
+		string title,
+		string message,
+		Action callback)
+	{
+		ConfirmationDialog dialogRef = new() {
+			Title = title,
+			DialogText = message
+		};
+
+		AddChild(dialogRef);
+
+		dialogRef.Confirmed += () => {
+			dialogRef.QueueFree();
+			callback.Invoke();
+		};
+
+		dialogRef.CloseRequested += dialogRef.QueueFree;
+		dialogRef.Canceled += dialogRef.QueueFree;
+
+		dialogRef.PopupCentered(new(250, 64));
 	}
 
 	#endregion
