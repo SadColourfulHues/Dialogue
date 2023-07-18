@@ -1,7 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://c4xihcivovv24"]
+[gd_scene load_steps=11 format=3 uid="uid://c4xihcivovv24"]
 
 [ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
-[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialogueScriptSyntaxHighlighter.cs" id="1_s0xp0"]
+[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueScriptEditor.cs" id="2_2phth"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_5ndw0"]
 device = -1
@@ -38,10 +38,6 @@ unicode = 101
 
 [sub_resource type="Shortcut" id="Shortcut_qo80f"]
 events = [SubResource("InputEventKey_hju6s")]
-
-[sub_resource type="SyntaxHighlighter" id="SyntaxHighlighter_6sdl7"]
-script = ExtResource("1_s0xp0")
-_foregroundColour = Color(1, 1, 1, 1)
 
 [node name="Editor" type="Control"]
 layout_mode = 3
@@ -118,7 +114,12 @@ text = "Export"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+highlight_current_line = true
 draw_tabs = true
-syntax_highlighter = SubResource("SyntaxHighlighter_6sdl7")
 scroll_smooth = true
+minimap_draw = true
+caret_blink = true
 gutters_draw_line_numbers = true
+auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
+script = ExtResource("2_2phth")

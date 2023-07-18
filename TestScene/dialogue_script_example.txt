@@ -1,5 +1,5 @@
 # This is a dialogue script file
-# It's an easy to use way to create dialogue graphs for SCHLib's dialogue system
+# It's an easy to use method to create dialogue graphs for SCHLib's dialogue system
 # Lines that start with a '#' are comments, they are ignored by the parser and can be used to document your scripts.
 
 Stranger:
@@ -89,13 +89,17 @@ Your name is $playerName, right?
 	How did you know that?
 	[pointless_choice]
 	
-	Not really
-	[pointless_choice]
+	I'm not $playerName (Lie)
+	[lie]
 
 @shake a
 
 # You can use variables to 'personalise' your dialogue
 # These can be set through the 'player' object and will be automatically replaced at runtime.
+
+[lie]
+Stranger:
+$playerName... $playerName... $playerName...
 
 [pointless_choice]
 Stranger:
@@ -104,6 +108,7 @@ Stranger:
 Stranger:
 $playerName
 
+[pointless_choice_continued]
 Stranger:
 You're wearing a name tag.
 

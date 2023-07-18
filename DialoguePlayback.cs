@@ -14,7 +14,12 @@ namespace SadChromaLib.Dialogue;
 [GlobalClass]
 public sealed partial class DialoguePlayback : Node
 {
-	private const string QuitCommand = "close";
+	private const string CommandNameQuit = "close";
+	private const string CommandNameQuitConditional = "closeif";
+	private const string CommandNameSet = "set";
+	private const string CommandNameJump = "jump";
+	private const string CommandNameJumpConditional = "jumpif";
+	private const string CommandNameFlag = "flag";
 
 	#region Signals
 
@@ -48,23 +53,19 @@ public sealed partial class DialoguePlayback : Node
 
 	public override void _Ready()
 	{
-		Debug.Assert(
-			condition: IsInstanceValid(_dialogueGraphRef),
-			message: "DialoguePlayback: invalid dialogue graph selected."
-		);
-
-		_count = _dialogueGraphRef.Nodes.Length;
-
-		Debug.Assert(
-			condition: _count > 0,
-			message: "DialoguePlayback: selected dialogue graph is empty."
-		);
-
 		_scriptVariables = new();
-		Reset();
+		SetDialogueGraph(_dialogueGraphRef, true);
 	}
 
 	#region Main Functions
+
+	public void SetDialogueGraph(DialogueGraph graphRef, bool resetVariables = false)
+	{
+		_dialogueGraphRef = graphRef;
+		_count = graphRef?.Nodes.Length ?? 0;
+
+		Reset(resetVariables);
+	}
 
 	/// <summary>
 	/// Sets/Updates a variable for the playback instance
@@ -107,8 +108,8 @@ public sealed partial class DialoguePlayback : Node
 			message: "DialoguePlayback.Jump: Invalid jump index."
 		);
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[index]);
 		_index = index;
+		SetCurrentBlock(_dialogueGraphRef.Nodes[index]);
 	}
 
 	/// <summary>
@@ -122,8 +123,7 @@ public sealed partial class DialoguePlayback : Node
 		if (blockIdx == null)
 			return;
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[blockIdx.Value]);
-		_index = blockIdx.Value + 1;
+		Jump(blockIdx.Value);
 	}
 
 	/// <summary>
@@ -141,8 +141,11 @@ public sealed partial class DialoguePlayback : Node
 	/// <param name="wrap">Should it restart when it finishes?</param>
 	public void Next(bool wrap = false)
 	{
-		if (HandleCommands())
+		if (_dialogueGraphRef == null ||
+			HandleCommands())
+		{
 			return;
+		}
 
 		// Prevent advancing the dialogue if the player is expected to make a choice
 		if (_currentBlock?.Choices?.Length > 0)
@@ -158,8 +161,16 @@ public sealed partial class DialoguePlayback : Node
 			}
 		}
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[_index]);
-		_index ++;
+		while (true) {
+			DialogueNode nextBlock = _dialogueGraphRef.Nodes[_index];
+
+			if (_currentBlock != nextBlock) {
+				SetCurrentBlock(nextBlock);
+				break;
+			}
+
+			_index ++;
+		}
 	}
 
 	/// <summary>
@@ -175,8 +186,9 @@ public sealed partial class DialoguePlayback : Node
 	/// Resets the state of the playback.
 	/// </summary>
 	/// <param name="resetVariables">Whether or not to clear its variables.</param>
-	public void Reset(bool resetVariables = true)
+	public void Reset(bool resetVariables = false)
 	{
+		_nextCommands = null;
 		_currentBlock = null;
 		_index = 0;
 
@@ -224,9 +236,74 @@ public sealed partial class DialoguePlayback : Node
 		ReadOnlySpan<DialogueNodeCommand> commands = _nextCommands;
 
 		for (int i = 0; i < commands.Length; ++ i) {
-			if (commands[i].Name == QuitCommand) {
-				Stop();
-				return true;
+			switch (commands[i].Name)
+			{
+				case CommandNameQuit:
+					Stop();
+					return true;
+
+				case CommandNameQuitConditional:
+					if (commands[i].Parameter == null ||
+						!_scriptVariables.ContainsKey(commands[i].Parameter))
+					{
+						continue;
+					}
+
+					Stop();
+					return true;
+
+				case CommandNameJump:
+					if (commands[i].Parameter == null)
+						continue;
+
+					Jump(commands[i].Parameter);
+					return true;
+
+				case CommandNameJumpConditional:
+					if (commands[i].Parameter == null)
+						continue;
+
+					ReadOnlySpan<string> commandNameJumpConditionalParameters = commands[i].Parameter.Split(' ');
+
+					if (commandNameJumpConditionalParameters.Length < 2)
+						continue;
+
+					StringName conditionName = commandNameJumpConditionalParameters[0];
+					StringName targetTag = commandNameJumpConditionalParameters[1];
+
+					if (!_scriptVariables.ContainsKey(conditionName))
+						continue;
+
+					Jump(targetTag);
+					return true;
+
+				case CommandNameSet:
+					if (commands[i].Parameter == null)
+						continue;
+
+					ReadOnlySpan<string> commandNameSetParameters = commands[i].Parameter.Split(' ');
+
+					if (commandNameSetParameters.Length < 2)
+						continue;
+
+					ReadOnlySpan<char> paramVariableName = commandNameSetParameters[0];
+					ReadOnlySpan<char> paramVariableValue = commandNameSetParameters[1];
+
+					DialogueParser.StripSpace(ref paramVariableName);
+					DialogueParser.StripSpace(ref paramVariableValue);
+
+					StringName variableName = paramVariableName.ToString();
+					Variant variableValue = GD.StrToVar(paramVariableValue.ToString());
+
+					SetVariable(variableName, variableValue);
+					continue;
+
+				case CommandNameFlag:
+					if (commands[i].Parameter == null)
+						continue;
+
+					SetVariable(commands[i].Parameter, true);
+					continue;
 			}
 
 			EmitSignal(SignalName.HandleCommandRequest, commands[i]);
