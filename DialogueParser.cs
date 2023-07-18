@@ -12,7 +12,7 @@ namespace SadChromaLib.Dialogue;
 /// </summary>
 public sealed partial class DialogueParser: RefCounted
 {
-	private const string TagStart = "start";
+	public const string TagStart = "start";
 	private const string ScriptTerminator = "\nEOF:";
 
 	private const int MaxDialogueNodeCount = 512;

@@ -15,8 +15,11 @@ namespace SadChromaLib.Dialogue;
 public sealed partial class DialoguePlayback : Node
 {
 	private const string CommandNameQuit = "close";
+	private const string CommandNameQuitConditional = "closeif";
 	private const string CommandNameSet = "set";
 	private const string CommandNameJump = "jump";
+	private const string CommandNameJumpConditional = "jumpif";
+	private const string CommandNameFlag = "flag";
 
 	#region Signals
 
@@ -105,8 +108,8 @@ public sealed partial class DialoguePlayback : Node
 			message: "DialoguePlayback.Jump: Invalid jump index."
 		);
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[index]);
 		_index = index;
+		SetCurrentBlock(_dialogueGraphRef.Nodes[index]);
 	}
 
 	/// <summary>
@@ -120,8 +123,7 @@ public sealed partial class DialoguePlayback : Node
 		if (blockIdx == null)
 			return;
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[blockIdx.Value]);
-		_index = blockIdx.Value + 1;
+		Jump(blockIdx.Value);
 	}
 
 	/// <summary>
@@ -159,8 +161,16 @@ public sealed partial class DialoguePlayback : Node
 			}
 		}
 
-		SetCurrentBlock(_dialogueGraphRef.Nodes[_index]);
-		_index ++;
+		while (true) {
+			DialogueNode nextBlock = _dialogueGraphRef.Nodes[_index];
+
+			if (_currentBlock != nextBlock) {
+				SetCurrentBlock(nextBlock);
+				break;
+			}
+
+			_index ++;
+		}
 	}
 
 	/// <summary>
@@ -176,7 +186,7 @@ public sealed partial class DialoguePlayback : Node
 	/// Resets the state of the playback.
 	/// </summary>
 	/// <param name="resetVariables">Whether or not to clear its variables.</param>
-	public void Reset(bool resetVariables = true)
+	public void Reset(bool resetVariables = false)
 	{
 		_nextCommands = null;
 		_currentBlock = null;
@@ -226,37 +236,74 @@ public sealed partial class DialoguePlayback : Node
 		ReadOnlySpan<DialogueNodeCommand> commands = _nextCommands;
 
 		for (int i = 0; i < commands.Length; ++ i) {
-			if (commands[i].Name == CommandNameQuit) {
-				Stop();
-				return true;
-			}
-			else if (commands[i].Name == CommandNameJump) {
-				if (commands[i].Parameter == null)
+			switch (commands[i].Name)
+			{
+				case CommandNameQuit:
+					Stop();
+					return true;
+
+				case CommandNameQuitConditional:
+					if (commands[i].Parameter == null ||
+						!_scriptVariables.ContainsKey(commands[i].Parameter))
+					{
+						continue;
+					}
+
+					Stop();
+					return true;
+
+				case CommandNameJump:
+					if (commands[i].Parameter == null)
+						continue;
+
+					Jump(commands[i].Parameter);
+					return true;
+
+				case CommandNameJumpConditional:
+					if (commands[i].Parameter == null)
+						continue;
+
+					ReadOnlySpan<string> commandNameJumpConditionalParameters = commands[i].Parameter.Split(' ');
+
+					if (commandNameJumpConditionalParameters.Length < 2)
+						continue;
+
+					StringName conditionName = commandNameJumpConditionalParameters[0];
+					StringName targetTag = commandNameJumpConditionalParameters[1];
+
+					if (!_scriptVariables.ContainsKey(conditionName))
+						continue;
+
+					Jump(targetTag);
+					return true;
+
+				case CommandNameSet:
+					if (commands[i].Parameter == null)
+						continue;
+
+					ReadOnlySpan<string> commandNameSetParameters = commands[i].Parameter.Split(' ');
+
+					if (commandNameSetParameters.Length < 2)
+						continue;
+
+					ReadOnlySpan<char> paramVariableName = commandNameSetParameters[0];
+					ReadOnlySpan<char> paramVariableValue = commandNameSetParameters[1];
+
+					DialogueParser.StripSpace(ref paramVariableName);
+					DialogueParser.StripSpace(ref paramVariableValue);
+
+					StringName variableName = paramVariableName.ToString();
+					Variant variableValue = GD.StrToVar(paramVariableValue.ToString());
+
+					SetVariable(variableName, variableValue);
 					continue;
 
-				Jump(commands[i].Parameter);
-				return true;
-			}
-			else if (commands[i].Name == CommandNameSet) {
-				if (commands[i].Parameter == null)
+				case CommandNameFlag:
+					if (commands[i].Parameter == null)
+						continue;
+
+					SetVariable(commands[i].Parameter, true);
 					continue;
-
-				ReadOnlySpan<string> parameters = commands[i].Parameter.Split(' ');
-
-				if (parameters.Length < 2)
-					continue;
-
-				ReadOnlySpan<char> paramVariableName = parameters[0];
-				ReadOnlySpan<char> paramVariableValue = parameters[1];
-
-				DialogueParser.StripSpace(ref paramVariableName);
-				DialogueParser.StripSpace(ref paramVariableValue);
-
-				StringName variableName = paramVariableName.ToString();
-				Variant variableValue = GD.StrToVar(paramVariableValue.ToString());
-
-				SetVariable(variableName, variableValue);
-				continue;
 			}
 
 			EmitSignal(SignalName.HandleCommandRequest, commands[i]);
