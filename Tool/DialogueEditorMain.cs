@@ -20,7 +20,7 @@ public sealed partial class DialogueEditorMain : Control
 	};
 
 	private readonly DialogueParser _parser;
-	private CodeEdit _scriptEditor;
+	private DialogueScriptEditor _scriptEditor;
 
 	private string _lastFilePath;
 
@@ -31,7 +31,7 @@ public sealed partial class DialogueEditorMain : Control
 
 	public override void _Ready()
 	{
-		_scriptEditor = GetNode<CodeEdit>("%Script");
+		_scriptEditor = GetNode<DialogueScriptEditor>("%Script");
 
 		GetNode<Button>("%New").Pressed += OnNewPressed;
 		GetNode<Button>("%Load").Pressed += OnLoadPressed;

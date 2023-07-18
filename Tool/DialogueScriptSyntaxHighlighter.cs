@@ -3,8 +3,12 @@ using Godot.Collections;
 
 using System;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Dialogue.Editor;
 
+/// <summary>
+/// A syntax highlighter for Dialogue Script files.
+/// Attach it to a CodeEdit to use.
+/// </summary>
 [GlobalClass]
 public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 {

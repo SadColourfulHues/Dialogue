@@ -3,7 +3,7 @@ using Godot;
 namespace SadChromaLib.Dialogue.Nodes;
 
 /// <summary>
-/// The only reason this thing exists is because Godot still doesn't support exporting tuples and/or dictionaries
+/// An object that represents a command term in a dialogue block.
 /// </summary>
 [GlobalClass]
 public sealed partial class DialogueNodeCommand: Resource

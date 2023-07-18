@@ -14,7 +14,9 @@ namespace SadChromaLib.Dialogue;
 [GlobalClass]
 public sealed partial class DialoguePlayback : Node
 {
-	private const string QuitCommand = "close";
+	private const string CommandNameQuit = "close";
+	private const string CommandNameSet = "set";
+	private const string CommandNameJump = "jump";
 
 	#region Signals
 
@@ -48,23 +50,19 @@ public sealed partial class DialoguePlayback : Node
 
 	public override void _Ready()
 	{
-		Debug.Assert(
-			condition: IsInstanceValid(_dialogueGraphRef),
-			message: "DialoguePlayback: invalid dialogue graph selected."
-		);
-
-		_count = _dialogueGraphRef.Nodes.Length;
-
-		Debug.Assert(
-			condition: _count > 0,
-			message: "DialoguePlayback: selected dialogue graph is empty."
-		);
-
 		_scriptVariables = new();
-		Reset();
+		SetDialogueGraph(_dialogueGraphRef, true);
 	}
 
 	#region Main Functions
+
+	public void SetDialogueGraph(DialogueGraph graphRef, bool resetVariables = false)
+	{
+		_dialogueGraphRef = graphRef;
+		_count = graphRef?.Nodes.Length ?? 0;
+
+		Reset(resetVariables);
+	}
 
 	/// <summary>
 	/// Sets/Updates a variable for the playback instance
@@ -141,8 +139,11 @@ public sealed partial class DialoguePlayback : Node
 	/// <param name="wrap">Should it restart when it finishes?</param>
 	public void Next(bool wrap = false)
 	{
-		if (HandleCommands())
+		if (_dialogueGraphRef == null ||
+			HandleCommands())
+		{
 			return;
+		}
 
 		// Prevent advancing the dialogue if the player is expected to make a choice
 		if (_currentBlock?.Choices?.Length > 0)
@@ -177,6 +178,7 @@ public sealed partial class DialoguePlayback : Node
 	/// <param name="resetVariables">Whether or not to clear its variables.</param>
 	public void Reset(bool resetVariables = true)
 	{
+		_nextCommands = null;
 		_currentBlock = null;
 		_index = 0;
 
@@ -224,9 +226,37 @@ public sealed partial class DialoguePlayback : Node
 		ReadOnlySpan<DialogueNodeCommand> commands = _nextCommands;
 
 		for (int i = 0; i < commands.Length; ++ i) {
-			if (commands[i].Name == QuitCommand) {
+			if (commands[i].Name == CommandNameQuit) {
 				Stop();
 				return true;
+			}
+			else if (commands[i].Name == CommandNameJump) {
+				if (commands[i].Parameter == null)
+					continue;
+
+				Jump(commands[i].Parameter);
+				return true;
+			}
+			else if (commands[i].Name == CommandNameSet) {
+				if (commands[i].Parameter == null)
+					continue;
+
+				ReadOnlySpan<string> parameters = commands[i].Parameter.Split(' ');
+
+				if (parameters.Length < 2)
+					continue;
+
+				ReadOnlySpan<char> paramVariableName = parameters[0];
+				ReadOnlySpan<char> paramVariableValue = parameters[1];
+
+				DialogueParser.StripSpace(ref paramVariableName);
+				DialogueParser.StripSpace(ref paramVariableValue);
+
+				StringName variableName = paramVariableName.ToString();
+				Variant variableValue = GD.StrToVar(paramVariableValue.ToString());
+
+				SetVariable(variableName, variableValue);
+				continue;
 			}
 
 			EmitSignal(SignalName.HandleCommandRequest, commands[i]);

@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace SadChromaLib.Dialogue.Nodes;
 
 /// <summary>
-/// A structure that contains compiled information from a dialogue script.
+/// An object containing dialogue blocks from a compiled Dialogue Script.
 /// </summary>
 [GlobalClass]
 public sealed partial class DialogueGraph : Resource
@@ -65,6 +65,10 @@ public sealed partial class DialogueGraph : Resource
 		return null;
 	}
 
+	/// <summary>
+	/// Returns the first dialogue block.
+	/// </summary>
+	/// <returns></returns>
 	public DialogueNode FirstNode()
 	{
 		Debug.Assert(
@@ -75,6 +79,10 @@ public sealed partial class DialogueGraph : Resource
 		return Nodes[0];
 	}
 
+	/// <summary>
+	/// Returns the last dialogue block.
+	/// </summary>
+	/// <returns></returns>
 	public DialogueNode LastNode()
 	{
 		Debug.Assert(

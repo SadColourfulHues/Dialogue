@@ -7,13 +7,16 @@ using SadChromaLib.Dialogue.Nodes;
 
 namespace SadChromaLib.Dialogue;
 
+/// <summary>
+/// A utility object that compiles dialogue scripts into DialogueGraph resource files.
+/// </summary>
 public sealed partial class DialogueParser: RefCounted
 {
 	private const string TagStart = "start";
 	private const string ScriptTerminator = "\nEOF:";
 
 	private const int MaxDialogueNodeCount = 512;
-	private const int MaxDialogueLineLength = 4096;
+	private const int MaxDialogueLineLength = 1024;
 
 	private const int MaxCommands = 5;
 	private const int MaxChoices = 4;
@@ -291,7 +294,12 @@ public sealed partial class DialogueParser: RefCounted
 
 	#region Parsers
 
-	private static CommandInfo ParseCommand(ReadOnlySpan<char> line)
+	/// <summary>
+	/// Extracts command statement information from a line
+	/// </summary>
+	/// <param name="line">The line to parse</param>
+	/// <returns></returns>
+	public static CommandInfo ParseCommand(ReadOnlySpan<char> line)
 	{
 		ReadOnlySpan<char> parameters = line;
 
@@ -317,7 +325,12 @@ public sealed partial class DialogueParser: RefCounted
 		};
 	}
 
-	private static string ParseCharacterId(ReadOnlySpan<char> line)
+	/// <summary>
+	/// Extracts the character's ID from a line
+	/// </summary>
+	/// <param name="line">The line to parse</param>
+	/// <returns></returns>
+	public static string ParseCharacterId(ReadOnlySpan<char> line)
 	{
 		for (int i = 0; i < line.Length; ++ i) {
 			if (line[i] != ':')
@@ -329,7 +342,12 @@ public sealed partial class DialogueParser: RefCounted
 		return line.ToString();
 	}
 
-	private static string ParseTagId(ReadOnlySpan<char> line)
+	/// <summary>
+	/// Extracts a tag ID from a line
+	/// </summary>
+	/// <param name="line">The line to parse</param>
+	/// <returns></returns>
+	public static string ParseTagId(ReadOnlySpan<char> line)
 	{
 		if (line.Length < 3)
 			return null;
@@ -349,6 +367,12 @@ public sealed partial class DialogueParser: RefCounted
 		return line.ToString();
 	}
 
+	/// <summary>
+	/// Parses a string for variable terms and replaces each occurrence accordingly
+	/// </summary>
+	/// <param name="text">The string to parse</param>
+	/// <param name="resolveCallback">A callback method that supplies variable values.</param>
+	/// <returns></returns>
 	public static string ParseAndResolveVariables(string text, Func<StringName, string> resolveCallback)
 	{
 		ReadOnlySpan<char> characters = text;
@@ -531,6 +555,11 @@ public sealed partial class DialogueParser: RefCounted
 		index ++;
 	}
 
+	/// <summary>
+	/// Returns a classification type for a specified line
+	/// </summary>
+	/// <param name="line">The line to classify</param>
+	/// <returns></returns>
 	public static Type GetLineType(ReadOnlySpan<char> line)
 	{
 		if (line.Length > 0 && line[0] == '#') {
@@ -540,9 +569,8 @@ public sealed partial class DialogueParser: RefCounted
 			StripTabs(ref line);
 			Type innerType = GetLineType(line);
 
-			if (innerType == Type.Comment) {
+			if (innerType == Type.Comment)
 				return innerType;
-			}
 
 			return Type.Choice;
 		}
@@ -559,6 +587,12 @@ public sealed partial class DialogueParser: RefCounted
 		return Type.DialogueLine;
 	}
 
+	/// <summary>
+	/// Returns whether or not a string starts with a tab or tab-like character(s)
+	/// </summary>
+	/// <param name="str">The string to check</param>
+	/// <param name="minWhiteSpace">The minimum required amount of spaces that classifies as a 'tab'</param>
+	/// <returns></returns>
 	public static bool StartsWithTab(ReadOnlySpan<char> str, int minWhiteSpace = 4)
 	{
 		if (str.Length < 1)
@@ -566,6 +600,9 @@ public sealed partial class DialogueParser: RefCounted
 
 		if (str[0] == '\t')
 			return true;
+
+		if (str.Length < minWhiteSpace)
+			return false;
 
 		for (int i = 0; i < str.Length; ++ i) {
 			if (char.IsWhiteSpace(str[i]))
@@ -577,6 +614,10 @@ public sealed partial class DialogueParser: RefCounted
 		return true;
 	}
 
+	/// <summary>
+	/// Removes all tabs or tab-like characters from a string
+	/// </summary>
+	/// <param name="str">The string to strip</param>
 	public static void StripTabs(ref ReadOnlySpan<char> str)
 	{
 		if (str.Length < 1)
@@ -596,6 +637,29 @@ public sealed partial class DialogueParser: RefCounted
 		}
 	}
 
+	/// <summary>
+	/// Removes all whitespace, newline, and tab characters from a string
+	/// </summary>
+	/// <param name="line">The string to strip</param>
+	public static void StripSpace(ref ReadOnlySpan<char> line)
+	{
+		for (int i = 0; i < line.Length; ++ i) {
+			if (char.IsWhiteSpace(line[i]) ||
+				line[i] == '\t' ||
+				line[i] == '\n')
+			{
+				continue;
+			}
+
+			line = line[..i];
+		}
+	}
+
+	/// <summary>
+	/// Returns whether or not a string is empty
+	/// </summary>
+	/// <param name="line">The string to check</param>
+	/// <returns></returns>
 	public static bool IsEmpty(ReadOnlySpan<char> line)
 	{
 		for (int i = 0; i < line.Length; ++ i) {
@@ -608,6 +672,11 @@ public sealed partial class DialogueParser: RefCounted
 		return true;
 	}
 
+	/// <summary>
+	/// Returns whether or not the current character marks the end of a variable term
+	/// </summary>
+	/// <param name="c">The character to check</param>
+	/// <returns></returns>
 	public static bool IsVariableTerminator(char c)
 	{
 		return char.IsWhiteSpace(c) || !char.IsLetterOrDigit(c);
@@ -615,7 +684,10 @@ public sealed partial class DialogueParser: RefCounted
 
 	#endregion
 
-	private ref struct CommandInfo
+	/// <summary>
+	/// A structure holding parsed command statement information
+	/// </summary>
+	public ref struct CommandInfo
 	{
 		public ReadOnlySpan<char> Name;
 		public ReadOnlySpan<char> Parameter;
