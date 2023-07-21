@@ -53,7 +53,7 @@ public sealed partial class DialoguePlayback : Node
 
 	public override void _Ready()
 	{
-		_scriptVariables = new();
+		_scriptVariables ??= new();
 		SetDialogueGraph(_dialogueGraphRef, true);
 	}
 
