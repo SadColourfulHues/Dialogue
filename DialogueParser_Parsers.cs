@@ -156,37 +156,34 @@ public sealed partial class DialogueParser
 			return;
 
 		Span<string> tmpParameters = new string[MaxParameterCount];
-
-		int? lastStart = 0;
 		int parameterIdx = 0;
 
-		int lastAdded = 0;
+		int start = 0;
 
 		for (int i = 0; i < parameterStr.Length; ++ i) {
-			if (lastStart != null && char.IsWhiteSpace(parameterStr[i])) {
-				ExtractCommandParameterStr(
-					parameter: parameterStr,
-					start: lastStart.Value,
-					end: i,
-					parameters: ref tmpParameters,
-					parameterIdx: ref parameterIdx
-				);
+			if (!char.IsWhiteSpace(parameterStr[i]))
+				continue;
 
-				lastStart = null;
-				lastAdded = i + 1;
-			}
-			else if (lastStart == null && char.IsWhiteSpace(parameterStr[i])) {
-				lastStart = i;
-			}
+			ExtractCommandParameterStr(
+				parameter: parameterStr,
+				start: start,
+				end: i,
+				parameters: ref tmpParameters,
+				parameterIdx: ref parameterIdx
+			);
+
+			start = i + 1;
 		}
 
-		ExtractCommandParameterStr(
-			parameter: parameterStr,
-			start: lastAdded,
-			end: parameterStr.Length,
-			parameters: ref tmpParameters,
-			parameterIdx: ref parameterIdx
-		);
+		if (start < parameterStr.Length) {
+			ExtractCommandParameterStr(
+				parameter: parameterStr,
+				start: start,
+				end: parameterStr.Length,
+				parameters: ref tmpParameters,
+				parameterIdx: ref parameterIdx
+			);
+		}
 
 		parameters = tmpParameters[..parameterIdx];
 	}
