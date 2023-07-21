@@ -17,6 +17,7 @@ public sealed partial class DialogueParser: RefCounted
 
 	private const int MaxDialogueNodeCount = 512;
 	private const int MaxDialogueLineLength = 1024;
+	private const int MaxParameterCount = 16;
 
 	private const int MaxCommands = 5;
 	private const int MaxChoices = 4;
@@ -429,6 +430,61 @@ public sealed partial class DialogueParser: RefCounted
 		}
 
 		return tmpString[..strIdx].ToString();
+	}
+
+	/// <summary>
+	/// Parses a multi-parameter command into a span of strings
+	/// </summary>
+	/// <param name="parameterStr">The parameter string to parse</param>
+	/// <param name="parameters">A span of strings to store the parameters</param>
+	public static void ParseCommandParameters(ReadOnlySpan<char> parameterStr, ref Span<string> parameters)
+	{
+		if (parameterStr.Length < 1)
+			return;
+
+		Span<string> tmpParameters = new string[MaxParameterCount];
+
+		int? lastStart = 0;
+		int parameterIdx = 0;
+
+		int lastAdded = 0;
+
+		for (int i = 0; i < parameterStr.Length; ++ i) {
+			if (lastStart != null && char.IsWhiteSpace(parameterStr[i])) {
+				ExtractCommandParameterStr(
+					parameter: parameterStr,
+					start: lastStart.Value,
+					end: i,
+					parameters: ref tmpParameters,
+					parameterIdx: ref parameterIdx
+				);
+
+				lastStart = null;
+				lastAdded = i + 1;
+			}
+			else if (lastStart == null && char.IsWhiteSpace(parameterStr[i])) {
+				lastStart = i;
+			}
+		}
+
+		ExtractCommandParameterStr(
+			parameter: parameterStr,
+			start: lastAdded,
+			end: parameterStr.Length,
+			parameters: ref tmpParameters,
+			parameterIdx: ref parameterIdx
+		);
+
+		parameters = tmpParameters[..parameterIdx];
+	}
+
+	private static void ExtractCommandParameterStr(ReadOnlySpan<char> parameter, int start, int end, ref Span<string> parameters, ref int parameterIdx)
+	{
+		int sliceLen = end - start;
+		ReadOnlySpan<char> slice = parameter.Slice(start, sliceLen);
+
+		parameters[parameterIdx] = slice.ToString();
+		parameterIdx ++;
 	}
 
 	#endregion
