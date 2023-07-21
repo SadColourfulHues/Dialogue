@@ -98,6 +98,18 @@ public sealed partial class DialoguePlayback : Node
 	}
 
 	/// <summary>
+	/// Removes a variable from the current playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable remove.</param>
+	public void RemoveVariable(StringName name)
+	{
+		if (!_scriptVariables.ContainsKey(name))
+			return;
+
+		_scriptVariables.Remove(name);
+	}
+
+	/// <summary>
 	/// Jumps to a specific block in the script
 	/// </summary>
 	/// <param name="index">The index to jump to.</param>
