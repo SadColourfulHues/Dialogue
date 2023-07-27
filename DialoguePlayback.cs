@@ -174,6 +174,11 @@ public sealed partial class DialoguePlayback : Node
 		}
 
 		while (true) {
+			if (_index >= _count) {
+				EmitSignal(SignalName.PlaybackCompleted);
+				return;
+			}
+
 			DialogueNode nextBlock = _dialogueGraphRef.Nodes[_index];
 
 			if (_currentBlock != nextBlock) {
