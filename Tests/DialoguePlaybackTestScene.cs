@@ -1,9 +1,8 @@
 using Godot;
 
-using SadChromaLib.Dialogue;
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace Game.Tests;
+namespace SadChromaLib.Specialisations.Dialogue.Tests;
 
 public partial class DialoguePlaybackTestScene : Node2D
 {
@@ -109,7 +108,7 @@ public partial class DialoguePlaybackTestScene : Node2D
 			}
 
 			choiceButton.Visible = true;
-			choiceButton.Text = choices[i].ChoiceText;
+			choiceButton.Text = _playbackRef.ResolveVariables(choices[i].ChoiceText);
 		}
 	}
 

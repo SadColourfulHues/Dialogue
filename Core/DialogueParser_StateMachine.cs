@@ -1,9 +1,8 @@
-using Godot;
-
 using System;
-using SadChromaLib.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
+
+namespace SadChromaLib.Specialisations.Dialogue;
 
 public sealed partial class DialogueParser
 {

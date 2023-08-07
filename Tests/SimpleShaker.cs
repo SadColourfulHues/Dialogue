@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Game.Tests;
+namespace SadChromaLib.Specialisations.Dialogue.Tests;
 
 public sealed partial class SimpleShaker: RefCounted
 {

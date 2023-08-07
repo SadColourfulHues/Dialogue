@@ -4,9 +4,9 @@ using Godot.Collections;
 using System;
 using System.Diagnostics;
 
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue;
 
 /// <summary>
 /// A UI-agnostic implementation for playing back dialogue.
@@ -59,12 +59,27 @@ public sealed partial class DialoguePlayback : Node
 
 	#region Main Functions
 
+	/// <summary>
+	/// Overrides the playback instance's current dialogue graph.
+	/// </summary>
+	/// <param name="graphRef">The graph to switch to.</param>
+	/// <param name="resetVariables">Whether or not to reset the variable store on switch.</param>
 	public void SetDialogueGraph(DialogueGraph graphRef, bool resetVariables = false)
 	{
 		_dialogueGraphRef = graphRef;
 		_count = graphRef?.Nodes.Length ?? 0;
 
 		Reset(resetVariables);
+	}
+
+	/// <summary>
+	/// Replaces variable names in a text with their actual values.
+	/// </summary>
+	/// <param name="text">The text to parse.</param>
+	/// <returns></returns>
+	public string ResolveVariables(string text)
+	{
+		return DialogueParser.ParseAndResolveVariables(text, ResolveVariablesCallback);
 	}
 
 	/// <summary>
@@ -174,6 +189,11 @@ public sealed partial class DialoguePlayback : Node
 		}
 
 		while (true) {
+			if (_index >= _count) {
+				EmitSignal(SignalName.PlaybackCompleted);
+				return;
+			}
+
 			DialogueNode nextBlock = _dialogueGraphRef.Nodes[_index];
 
 			if (_currentBlock != nextBlock) {
@@ -220,13 +240,7 @@ public sealed partial class DialoguePlayback : Node
 
 		string text = _currentBlock.DialogueText;
 
-		text = DialogueParser.ParseAndResolveVariables(text, (StringName variableName) => {
-			if (!_scriptVariables.ContainsKey(variableName)) {
-				return variableName;
-			}
-
-			return _scriptVariables[variableName].ToString();
-		});
+		text = DialogueParser.ParseAndResolveVariables(text, ResolveVariablesCallback);
 
 		_nextCommands = _currentBlock.CommandList;
 
@@ -322,6 +336,15 @@ public sealed partial class DialoguePlayback : Node
 		}
 
 		return false;
+	}
+
+	private string ResolveVariablesCallback(StringName variableName)
+	{
+		if (!_scriptVariables.ContainsKey(variableName)) {
+			return variableName;
+		}
+
+		return _scriptVariables[variableName].ToString();
 	}
 
 	#endregion

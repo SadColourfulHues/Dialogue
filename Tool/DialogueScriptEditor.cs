@@ -1,8 +1,6 @@
 using Godot;
 
-using System;
-
-namespace SadChromaLib.Dialogue.Editor;
+namespace SadChromaLib.Specialisations.Dialogue.Editor;
 
 public partial class DialogueScriptEditor : CodeEdit
 {

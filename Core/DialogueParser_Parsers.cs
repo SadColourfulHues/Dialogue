@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue;
 
 public sealed partial class DialogueParser
 {
@@ -117,6 +117,8 @@ public sealed partial class DialogueParser
 				else {
 					sliceLen = i - startIdx.Value;
 					variableName = characters.Slice(startIdx.Value, sliceLen);
+
+					i --;
 				}
 
 				strIdx -= sliceLen;

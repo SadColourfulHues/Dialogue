@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://c4xihcivovv24"]
 
-[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
-[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/Tool/DialogueScriptEditor.cs" id="2_2phth"]
+[ext_resource type="Script" path="res://SCHLib/Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
+[ext_resource type="Script" path="res://SCHLib/Dialogue/Tool/DialogueScriptEditor.cs" id="2_2phth"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_5ndw0"]
 device = -1

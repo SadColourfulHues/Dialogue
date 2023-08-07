@@ -3,7 +3,7 @@ using Godot.Collections;
 
 using System;
 
-namespace SadChromaLib.Dialogue.Editor;
+namespace SadChromaLib.Specialisations.Dialogue.Editor;
 
 /// <summary>
 /// A syntax highlighter for Dialogue Script files.

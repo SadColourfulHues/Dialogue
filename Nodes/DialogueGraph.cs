@@ -3,7 +3,7 @@ using Godot;
 using System;
 using System.Diagnostics;
 
-namespace SadChromaLib.Dialogue.Nodes;
+namespace SadChromaLib.Specialisations.Dialogue.Nodes;
 
 /// <summary>
 /// An object containing dialogue blocks from a compiled Dialogue Script.

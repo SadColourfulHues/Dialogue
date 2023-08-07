@@ -19,11 +19,11 @@ I could reaaally use a hand right now.
 
 	Who are you again?
 	[question]
-	
+
 	Sure, why not
 	[help]
 
-# Dialogue blocks can have up to four possible routes
+# Dialogue blocks can have up to eight possible routes
 # You can define them by adding an indent followed by the choice text
 # Below it, you can specify which block to jump to when the player makes their selection.
 
@@ -88,7 +88,7 @@ Your name is $playerName, right?
 
 	How did you know that?
 	[pointless_choice]
-	
+
 	I'm not $playerName (Lie)
 	[lie]
 

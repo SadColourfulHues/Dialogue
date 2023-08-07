@@ -1,13 +1,13 @@
 using System;
 
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue;
 
 public sealed partial class DialogueParser
 {
 	private const int MaxCommands = 5;
-	private const int MaxChoices = 4;
+	private const int MaxChoices = 8;
 
 	private readonly (string Command, string Parameters)?[] _lastCommands;
 	private readonly (string ChoiceText, string TargetTag)?[] _lastChoices;
