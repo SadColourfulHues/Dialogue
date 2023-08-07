@@ -1,6 +1,6 @@
 using Godot;
 
-namespace SadChromaLib.Dialogue.Nodes;
+namespace SadChromaLib.Specialisations.Dialogue.Nodes;
 
 /// <summary>
 /// An object that represents a block of dialogue.

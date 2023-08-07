@@ -1,17 +1,17 @@
 [gd_scene load_steps=5 format=3 uid="uid://b0nr0rvcwje4p"]
 
-[ext_resource type="Texture2D" uid="uid://cw4yyeaq214wx" path="res://Assets/Icons/icon.svg" id="1_pwnst"]
-[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/TestScene/DialoguePlaybackTestScene.cs" id="1_qovsw"]
-[ext_resource type="Script" path="res://SharedScripts/SCHLib_Dialogue/DialoguePlayback.cs" id="2_br520"]
-[ext_resource type="Resource" uid="uid://dgl7j7yd67yxa" path="res://SharedScripts/SCHLib_Dialogue/TestScene/RES_ExampleScript.tres" id="3_067v2"]
+[ext_resource type="Script" path="res://SCHLib/Dialogue/Tests/DialoguePlaybackTestScene.cs" id="1_wi5y7"]
+[ext_resource type="Script" path="res://SCHLib/Dialogue/Core/DialoguePlayback.cs" id="2_v84th"]
+[ext_resource type="Resource" uid="uid://b7yjfn0ytonih" path="res://SCHLib/Dialogue/Tests/Assets/DGRAPH_ExampleScript.tres" id="3_d6v38"]
+[ext_resource type="Texture2D" uid="uid://cqhjwobpobxpo" path="res://SCHLib/Dialogue/Tests/Assets/icon.svg" id="4_bbfa2"]
 
 [node name="Scene" type="Node2D"]
-script = ExtResource("1_qovsw")
+script = ExtResource("1_wi5y7")
 
 [node name="Playback" type="Node" parent="."]
 unique_name_in_owner = true
-script = ExtResource("2_br520")
-_dialogueGraphRef = ExtResource("3_067v2")
+script = ExtResource("2_v84th")
+_dialogueGraphRef = ExtResource("3_d6v38")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(2, 2)
@@ -20,34 +20,34 @@ zoom = Vector2(2, 2)
 unique_name_in_owner = true
 modulate = Color(1, 0.929412, 0.929412, 1)
 position = Vector2(-102, 14)
-texture = ExtResource("1_pwnst")
+texture = ExtResource("4_bbfa2")
 
 [node name="b" type="Sprite2D" parent="."]
 unique_name_in_owner = true
 modulate = Color(0.729412, 1, 0.729412, 1)
 position = Vector2(111, 17)
-texture = ExtResource("1_pwnst")
+texture = ExtResource("4_bbfa2")
 
 [node name="Sprite2D" type="Sprite2D" parent="b"]
 modulate = Color(0.976471, 0, 0, 1)
 z_index = 1
 position = Vector2(3, 36)
 scale = Vector2(0.390625, 0.390625)
-texture = ExtResource("1_pwnst")
+texture = ExtResource("4_bbfa2")
 
 [node name="Sprite2D2" type="Sprite2D" parent="b"]
 modulate = Color(0.976471, 0, 0, 1)
 z_index = 1
 position = Vector2(2, -15)
 scale = Vector2(0.390625, 0.390625)
-texture = ExtResource("1_pwnst")
+texture = ExtResource("4_bbfa2")
 
 [node name="Sprite2D3" type="Sprite2D" parent="b"]
 modulate = Color(0.976471, 0, 0, 1)
 z_index = 1
 position = Vector2(3, -67)
 scale = Vector2(0.390625, 0.390625)
-texture = ExtResource("1_pwnst")
+texture = ExtResource("4_bbfa2")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

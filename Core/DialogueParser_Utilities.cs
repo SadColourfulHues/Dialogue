@@ -1,8 +1,8 @@
 using System;
 
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue;
 
 public sealed partial class DialogueParser
 {

@@ -3,9 +3,9 @@ using Godot;
 using System;
 using System.Text;
 
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue;
 
 /// <summary>
 /// A utility object that compiles dialogue scripts into DialogueGraph resource files.

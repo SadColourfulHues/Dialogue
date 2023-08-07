@@ -1,13 +1,15 @@
 using Godot;
 using Godot.Collections;
 
-namespace SadChromaLib.Dialogue;
+using SadChromaLib.Persistence;
+
+namespace SadChromaLib.Specialisations.Dialogue;
 
 using SerialisedData = Dictionary<StringName, Variant>;
 
 // Note: As for now, this persistence component
 // only serialises instance variables and nothing more.
-public sealed partial class DialoguePlayback
+public sealed partial class DialoguePlayback: ISerialisableComponent
 {
 	private const string KeyVariables = "variables";
 

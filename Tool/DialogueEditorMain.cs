@@ -1,9 +1,9 @@
 using Godot;
 using System;
 
-using SadChromaLib.Dialogue.Nodes;
+using SadChromaLib.Specialisations.Dialogue.Nodes;
 
-namespace SadChromaLib.Dialogue.Editor;
+namespace SadChromaLib.Specialisations.Dialogue.Editor;
 
 public sealed partial class DialogueEditorMain : Control
 {
