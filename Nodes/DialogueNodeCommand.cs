@@ -9,7 +9,7 @@ namespace SadChromaLib.Specialisations.Dialogue.Nodes;
 public sealed partial class DialogueNodeCommand: Resource
 {
 	[Export]
-	public StringName Name;
+	public string Name;
 
 	[Export]
 	public string Parameter;

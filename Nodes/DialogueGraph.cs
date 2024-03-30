@@ -21,7 +21,7 @@ public sealed partial class DialogueGraph : Resource
 	/// </summary>
 	/// <param name="tag">The node block's unique tag.</param>
 	/// <returns></returns>
-	public DialogueNode FindNode(StringName tag)
+	public DialogueNode FindNode(string tag)
 	{
 		int? index = FindIndex(tag);
 
@@ -51,7 +51,7 @@ public sealed partial class DialogueGraph : Resource
 	/// </summary>
 	/// <param name="tag">The node block's unique tag</param>
 	/// <returns></returns>
-	public int? FindIndex(StringName tag)
+	public int? FindIndex(string tag)
 	{
 		ReadOnlySpan<DialogueNode> nodes = Nodes;
 

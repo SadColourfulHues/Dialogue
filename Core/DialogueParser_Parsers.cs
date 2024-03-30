@@ -87,7 +87,7 @@ public sealed partial class DialogueParser
 	/// <param name="text">The string to parse</param>
 	/// <param name="resolveCallback">A callback method that supplies variable values.</param>
 	/// <returns></returns>
-	public static string ParseAndResolveVariables(string text, Func<StringName, string> resolveCallback)
+	public static string ParseAndResolveVariables(string text, Func<string, string> resolveCallback)
 	{
 		ReadOnlySpan<char> characters = text;
 

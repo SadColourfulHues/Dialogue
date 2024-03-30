@@ -9,10 +9,10 @@ namespace SadChromaLib.Specialisations.Dialogue.Nodes;
 public sealed partial class DialogueNode: Resource
 {
 	[Export]
-	public StringName Tag;
+	public string Tag;
 
 	[Export]
-	public StringName CharacterId;
+	public string CharacterId;
 
 	[Export]
 	public string DialogueText;
