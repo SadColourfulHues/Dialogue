@@ -1,9 +1,10 @@
 using Godot;
-using Godot.Collections;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
+using SadChromaLib.Types;
 using SadChromaLib.Specialisations.Dialogue.Nodes;
 
 namespace SadChromaLib.Specialisations.Dialogue;
@@ -24,7 +25,7 @@ public sealed partial class DialoguePlayback : Node
 	#region Signals
 
 	[Signal]
-	public delegate void CharacterUpdatedEventHandler(StringName characterId);
+	public delegate void CharacterUpdatedEventHandler(string characterId);
 
 	[Signal]
 	public delegate void DialogueTextUpdatedEventHandler(string dialogue);
@@ -45,7 +46,7 @@ public sealed partial class DialoguePlayback : Node
 
 	private DialogueNode _currentBlock;
 
-	private Dictionary<StringName, Variant> _scriptVariables;
+	private Dictionary<string, AnyData> _scriptVariables;
 	private DialogueNodeCommand[] _nextCommands;
 
 	private int _count;
@@ -87,36 +88,181 @@ public sealed partial class DialoguePlayback : Node
 	/// </summary>
 	/// <param name="name">The name of the variable to set</param>
 	/// <param name="value">Its value</param>
-	public void SetVariable(StringName name, Variant value)
+	public void SetVariable(string name, bool value)
 	{
-		_scriptVariables[name] = value;
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
 
-		// Apply changes to visible dialogue interfaces
-		if (_currentBlock == null)
-			return;
+	/// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, int value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
 
-		SetCurrentBlock(_currentBlock);
+	/// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, float value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
+
+	/// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, Vector2 value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
+
+	/// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, Vector3 value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
+
+	// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, string value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
+	}
+
+	/// <summary>
+	/// Sets/Updates a variable for the playback instance
+	/// </summary>
+	/// <param name="name">The name of the variable to set</param>
+	/// <param name="value">Its value</param>
+	public void SetVariable(string name, Color value)
+	{
+		_scriptVariables[name] = new(value);
+		ReloadBlock();
 	}
 
 	/// <summary>
 	/// Obtains the value of a specified variable from the playback instance.
 	/// </summary>
 	/// <param name="name">The name of the variable to get.</param>
-	/// <typeparam name="T">The type of the value.</typeparam>
 	/// <returns></returns>
-	public T GetVariable<[MustBeVariant] T>(StringName name)
+	public bool GetVarBool(string name, bool @default = default)
 	{
-		if (!_scriptVariables.ContainsKey(name))
-			return default;
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Bool)
+			return @default;
 
-		return _scriptVariables[name].As<T>();
+		return _scriptVariables[name].BoolValue;
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public int GetVarInt(string name, int @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Int)
+			return @default;
+
+		return _scriptVariables[name].IntValue;
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public float GetVarFloat(string name, float @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Float)
+			return @default;
+
+		return _scriptVariables[name].X;
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public Vector2 GetVarVec2(string name, Vector2 @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Vector2)
+			return @default;
+
+		return _scriptVariables[name].AsV2();
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public Vector3 GetVarVec3(string name, Vector3 @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Vector3)
+			return @default;
+
+		return _scriptVariables[name].AsV3();
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public Color GetVarColour(string name, Color @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.Colour)
+			return @default;
+
+		return _scriptVariables[name].AsColour();
+	}
+
+	/// <summary>
+	/// Obtains the value of a specified variable from the playback instance.
+	/// </summary>
+	/// <param name="name">The name of the variable to get.</param>
+	/// <returns></returns>
+	public string GetVarText(string name, string @default = default)
+	{
+		if (!_scriptVariables.ContainsKey(name) &&
+			_scriptVariables[name].DataType == AnyData.Type.String)
+			return @default;
+
+		return _scriptVariables[name].Text;
 	}
 
 	/// <summary>
 	/// Removes a variable from the current playback instance.
 	/// </summary>
 	/// <param name="name">The name of the variable remove.</param>
-	public void RemoveVariable(StringName name)
+	public void RemoveVariable(string name)
 	{
 		if (!_scriptVariables.ContainsKey(name))
 			return;
@@ -143,7 +289,7 @@ public sealed partial class DialoguePlayback : Node
 	/// Jumps to a specific block in the script
 	/// </summary>
 	/// <param name="tag">The unique tag to jump to.</param>
-	public void Jump(StringName tag)
+	public void Jump(string tag)
 	{
 		int? blockIdx = _dialogueGraphRef.FindIndex(tag);
 
@@ -230,6 +376,17 @@ public sealed partial class DialoguePlayback : Node
 		_scriptVariables.Clear();
 	}
 
+	/// <summary>
+	/// Re-runs the currently-active block
+	/// </summary>
+	public void ReloadBlock()
+	{
+		if (_currentBlock is null)
+			return;
+
+		SetCurrentBlock(_currentBlock);
+	}
+
 	#endregion
 
 	#region Helpers
@@ -294,8 +451,8 @@ public sealed partial class DialoguePlayback : Node
 					if (commandNameJumpConditionalParameters.Length < 2)
 						continue;
 
-					StringName conditionName = commandNameJumpConditionalParameters[0];
-					StringName targetTag = commandNameJumpConditionalParameters[1];
+					string conditionName = commandNameJumpConditionalParameters[0];
+					string targetTag = commandNameJumpConditionalParameters[1];
 
 					if (!_scriptVariables.ContainsKey(conditionName))
 						continue;
@@ -318,10 +475,14 @@ public sealed partial class DialoguePlayback : Node
 					DialogueParser.StripSpace(ref paramVariableName);
 					DialogueParser.StripSpace(ref paramVariableValue);
 
-					StringName variableName = paramVariableName.ToString();
-					Variant variableValue = GD.StrToVar(paramVariableValue.ToString());
+					// The command name set only supports float and string
+					if (!float.TryParse(paramVariableName, out float f)) {
+						SetVariable(paramVariableName.ToString(), f);
+					}
+					else {
+						SetVariable(paramVariableName.ToString(), paramVariableValue.ToString());
+					}
 
-					SetVariable(variableName, variableValue);
 					continue;
 
 				case CommandNameFlag:
@@ -338,7 +499,7 @@ public sealed partial class DialoguePlayback : Node
 		return false;
 	}
 
-	private string ResolveVariablesCallback(StringName variableName)
+	private string ResolveVariablesCallback(string variableName)
 	{
 		if (!_scriptVariables.ContainsKey(variableName)) {
 			return variableName;

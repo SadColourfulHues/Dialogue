@@ -1,27 +1,16 @@
-using Godot;
-using Godot.Collections;
-
 using SadChromaLib.Persistence;
 
 namespace SadChromaLib.Specialisations.Dialogue;
 
-using SerialisedData = Dictionary<StringName, Variant>;
-
 public sealed partial class DialoguePlayback: ISerialisableComponent
 {
-	private static StringName KeyVariables => "variables";
-
-	public SerialisedData Serialise()
+	public void Serialise(PersistenceWriter writer)
 	{
-		return new() {
-			[KeyVariables] = _scriptVariables
-		};
+		writer.Write(_scriptVariables);
 	}
 
-	public void Deserialise(SerialisedData data)
+	public void Deserialise(PersistenceReader reader)
 	{
-		if (data.ContainsKey(KeyVariables)) {
-			_scriptVariables = (SerialisedData) data[KeyVariables];
-		}
+		_scriptVariables = reader.ReadDataDict();
 	}
 }

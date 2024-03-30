@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://c4xihcivovv24"]
 
-[ext_resource type="Script" path="res://SCHLib/Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
-[ext_resource type="Script" path="res://SCHLib/Dialogue/Tool/DialogueScriptEditor.cs" id="2_2phth"]
+[ext_resource type="Script" path="res://Submodules/Dialogue/Tool/DialogueEditorMain.cs" id="1_frnyd"]
+[ext_resource type="Script" path="res://Submodules/Dialogue/Tool/DialogueScriptEditor.cs" id="2_2phth"]
 
 [sub_resource type="InputEventKey" id="InputEventKey_5ndw0"]
 device = -1
@@ -114,11 +114,11 @@ text = "Export"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-highlight_current_line = true
-draw_tabs = true
 scroll_smooth = true
 minimap_draw = true
 caret_blink = true
+highlight_current_line = true
+draw_tabs = true
 gutters_draw_line_numbers = true
 auto_brace_completion_enabled = true
 auto_brace_completion_highlight_matching = true
