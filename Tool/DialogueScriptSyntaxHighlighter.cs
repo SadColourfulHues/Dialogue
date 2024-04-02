@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 
 using System;
+using System.Text.RegularExpressions;
 
 namespace SadChromaLib.Specialisations.Dialogue.Editor;
 
@@ -17,19 +18,19 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 
 	private const string KeyColour = "color";
 
-	private Dictionary<DialogueParser.Type, Dictionary<StringName, Color>> _colourDicts;
-	private Dictionary<StringName, Color> _variableColourDict;
-	private Dictionary<StringName, Color> _targetTagColourDict;
+	private Dictionary<DialogueParser.LineType, Dictionary<string, Color>> _colourDicts;
+	private Dictionary<string, Color> _variableColourDict;
+	private Dictionary<string, Color> _targetTagColourDict;
 
 	public DialogueScriptSyntaxHighlighter()
 	{
 		_colourDicts = new() {
-			[DialogueParser.Type.Comment] = MakeColourDict(Colors.GreenYellow),
-			[DialogueParser.Type.CharacterId] = MakeColourDict(Colors.SkyBlue),
-			[DialogueParser.Type.Tag] = MakeColourDict(Colors.Orange),
-			[DialogueParser.Type.Choice] = MakeColourDict(Colors.Cornsilk),
-			[DialogueParser.Type.Command] = MakeColourDict(Colors.Pink),
-			[DialogueParser.Type.DialogueLine] = MakeColourDict(_foregroundColour)
+			[DialogueParser.LineType.Comment] = MakeColourDict(Colors.GreenYellow),
+			[DialogueParser.LineType.Character] = MakeColourDict(Colors.Gray),
+			[DialogueParser.LineType.Tag] = MakeColourDict(Colors.Orange),
+			[DialogueParser.LineType.Choice] = MakeColourDict(Colors.Wheat),
+			[DialogueParser.LineType.Command] = MakeColourDict(Colors.Pink),
+			[DialogueParser.LineType.Dialogue] = MakeColourDict(_foregroundColour)
 		};
 
 		_variableColourDict = MakeColourDict(Colors.SeaGreen);
@@ -40,65 +41,57 @@ public sealed partial class DialogueScriptSyntaxHighlighter : SyntaxHighlighter
 	{
 		Dictionary properties = new();
 
-		ReadOnlySpan<char> textLine = GetTextEdit().GetLine(line);
-		DialogueParser.Type type = DialogueParser.GetLineType(textLine);
+		string textLine = GetTextEdit().GetLine(line);
+		ReadOnlySpan<char> textLineSpan = textLine.AsSpan();
+		DialogueParser.LineType type = DialogueParser.Identify(textLine);
 
 		switch (type) {
-			case DialogueParser.Type.Choice:
-				DialogueParser.StripTabs(ref textLine);
+			case DialogueParser.LineType.Choice:
+				textLineSpan = DialogueParser.StripEmpty(textLineSpan);
 
 				// Apply colouring depending on its inner type
-				switch (DialogueParser.GetLineType(textLine)) {
-					case DialogueParser.Type.DialogueLine:
-						properties[0] = _colourDicts[DialogueParser.Type.Choice];
+				switch (DialogueParser.Identify(textLineSpan)) {
+					case DialogueParser.LineType.Dialogue:
+						properties[0] = _colourDicts[DialogueParser.LineType.Choice];
 						break;
 
-					case DialogueParser.Type.Tag:
+					case DialogueParser.LineType.Tag:
 						properties[0] = _targetTagColourDict;
 						break;
 				}
 				break;
 
-			case DialogueParser.Type.DialogueLine:
+			case DialogueParser.LineType.Dialogue:
 				ScanVariables(textLine, ref properties);
 				break;
 
-			default:
+			case DialogueParser.LineType.Comment:
+			case DialogueParser.LineType.Character:
+			case DialogueParser.LineType.Command:
+			case DialogueParser.LineType.Tag:
 				properties[0] = _colourDicts[type];
 				break;
+
+			default:
+				return base._GetLineSyntaxHighlighting(line);
 		}
 
 		return properties;
 	}
 
-	private void ScanVariables(ReadOnlySpan<char> line, ref Dictionary result)
+	private void ScanVariables(string line, ref Dictionary result)
 	{
-		int? start = null;
+		MatchCollection matches = DialogueParser.RegexVars.Matches(line);
 
-		for (int i = 0; i < line.Length; ++ i) {
-			bool isEndOfLine = i == line.Length - 1;
+		for (int i = 0; i < matches.Count; ++i) {
+			int start = matches[i].Index;
 
-			if (start != null &&
-				(DialogueParser.IsVariableTerminator(line[i]) || isEndOfLine))
-			{
-				result[start.Value] = _variableColourDict;
-
-				if (!isEndOfLine) {
-					result[i] = _foregroundColour;
-				}
-
-				return;
-			}
-
-			if (start == null &&
-				line[i] == '$')
-			{
-				start = i;
-			}
+			result[start] = _variableColourDict;
+			result[start + matches[i].Length] = _foregroundColour;
 		}
 	}
 
-	private static Dictionary<StringName, Color> MakeColourDict(Color colour)
+	private static Dictionary<string, Color> MakeColourDict(Color colour)
 	{
 		return new() {
 			[KeyColour] = colour

@@ -1,8 +1,8 @@
 using SadChromaLib.Persistence;
 
-namespace SadChromaLib.Specialisations.Dialogue;
+namespace SadChromaLib.Specialisations.Dialogue.Playback;
 
-public sealed partial class DialoguePlayback: ISerialisableComponent
+partial class DialoguePlayback: ISerialisableComponent
 {
 	public void Serialise(PersistenceWriter writer)
 	{
@@ -11,6 +11,6 @@ public sealed partial class DialoguePlayback: ISerialisableComponent
 
 	public void Deserialise(PersistenceReader reader)
 	{
-		_scriptVariables = reader.ReadDataDict();
+		reader.ReadDataDict(_scriptVariables);
 	}
 }
