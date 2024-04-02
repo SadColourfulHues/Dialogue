@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-using SadChromaLib.Specialisations.Dialogue.Nodes;
+using SadChromaLib.Utils.Convenience;
 
 namespace SadChromaLib.Specialisations.Dialogue.Editor;
 
@@ -16,7 +16,7 @@ public sealed partial class DialogueEditorMain : Control
 	};
 
 	private string[] GraphFileFilter = {
-		"*.tres ; Dialogue Graph Files, Godot Resource Files"
+		"*.dgr ; SCHLib Dialogue Graph"
 	};
 
 	private readonly DialogueParser _parser;
@@ -117,10 +117,8 @@ public sealed partial class DialogueEditorMain : Control
 		file.Close();
 	}
 
-	private void CompileAndWriteGraphToDisk(string filePath)
-	{
-		DialogueGraph graph = _parser.Compile(_scriptEditor.Text);
-		ResourceSaver.Save(graph, filePath);
+	private void CompileAndWriteGraphToDisk(string filePath) {
+		_parser.CompileToFile(_scriptEditor.Text, FilePathUtils.Expand(filePath));
 	}
 
 	#endregion

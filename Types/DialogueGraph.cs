@@ -1,18 +1,22 @@
-using Godot;
-
 using System;
-using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-namespace SadChromaLib.Specialisations.Dialogue.Nodes;
+namespace SadChromaLib.Specialisations.Dialogue.Types;
 
 /// <summary>
 /// An object containing dialogue blocks from a compiled Dialogue Script.
 /// </summary>
-[GlobalClass]
-public sealed partial class DialogueGraph : Resource
+public sealed partial class DialogueGraph
 {
-	[Export]
 	public DialogueNode[] Nodes;
+
+	public DialogueGraph() {
+		Nodes = null;
+	}
+
+	public DialogueGraph(DialogueNode[] nodes) {
+		Nodes = nodes;
+	}
 
 	#region Nodes
 
@@ -21,11 +25,11 @@ public sealed partial class DialogueGraph : Resource
 	/// </summary>
 	/// <param name="tag">The node block's unique tag.</param>
 	/// <returns></returns>
-	public DialogueNode FindNode(string tag)
+	public DialogueNode? FindNode(string tag)
 	{
 		int? index = FindIndex(tag);
 
-		if (index == null)
+		if (index is null)
 			return null;
 
 		return Nodes[index.Value];
@@ -36,13 +40,7 @@ public sealed partial class DialogueGraph : Resource
 	/// </summary>
 	/// <param name="node">The choice node to use.</param>
 	/// <returns></returns>
-	public DialogueNode FindNode(DialogueChoice node)
-	{
-		Debug.Assert(
-			condition: IsInstanceValid(node),
-			message: "Graph.FindNode (Choice): node must be a valid choice node."
-		);
-
+	public DialogueNode? FindNode(DialogueChoice node) {
 		return FindNode(node.TargetTag);
 	}
 
@@ -53,7 +51,7 @@ public sealed partial class DialogueGraph : Resource
 	/// <returns></returns>
 	public int? FindIndex(string tag)
 	{
-		ReadOnlySpan<DialogueNode> nodes = Nodes;
+		ReadOnlySpan<DialogueNode> nodes = Nodes.AsSpan();
 
 		for (int i = 0; i < nodes.Length; ++ i) {
 			if (nodes[i].Tag != tag)
@@ -69,13 +67,9 @@ public sealed partial class DialogueGraph : Resource
 	/// Returns the first dialogue block.
 	/// </summary>
 	/// <returns></returns>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public DialogueNode FirstNode()
 	{
-		Debug.Assert(
-			condition: Nodes.Length > 0,
-			message: "Graph.FirstNode: Graph is empty."
-		);
-
 		return Nodes[0];
 	}
 
@@ -83,13 +77,9 @@ public sealed partial class DialogueGraph : Resource
 	/// Returns the last dialogue block.
 	/// </summary>
 	/// <returns></returns>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public DialogueNode LastNode()
 	{
-		Debug.Assert(
-			condition: Nodes.Length > 0,
-			message: "Graph.LastNode: Graph is empty."
-		);
-
 		return Nodes[^1];
 	}
 
