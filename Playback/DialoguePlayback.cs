@@ -18,6 +18,7 @@ public sealed partial class DialoguePlayback
 
 	DialogueGraph _dialogueGraphRef;
 
+	bool _hasRanCommands;
 	int _currentIdx;
 
 	readonly Dictionary<string, AnyData> _scriptVariables;
@@ -26,6 +27,8 @@ public sealed partial class DialoguePlayback
 
 	public DialoguePlayback(IDialoguePlaybackHandler playbackHandler) {
 		_scriptVariables = new();
+
+		_hasRanCommands = false;
 		_currentIdx = 0;
 
 		PlaybackHandler = playbackHandler;
@@ -94,14 +97,14 @@ public sealed partial class DialoguePlayback
 		if (CurrentBlockHasChoices() && HandleCommands())
 			return;
 
+		_hasRanCommands = false;
+
 		PlaybackHandler?.OnPlaybackPresentDialogue(
 			character: ResolveVariables(block.CharacterId),
 			dialogue: ResolveVariables(block.DialogueText)
 		);
 
-		if (block.Choices is not null) {
-			PlaybackHandler?.OnPlaybackPresentChoices(block.Choices.AsSpan());
-		}
+		PlaybackHandler?.OnPlaybackPresentChoices(block.Choices);
 	}
 
 	/// <summary>
@@ -209,6 +212,9 @@ public sealed partial class DialoguePlayback
 
 	private bool HandleCommands()
 	{
+		if (_hasRanCommands)
+			return false;
+
 		ReadOnlySpan<DialogueCommand> commands = default;
 
 		if (!GetCurrentCommands(ref commands)) {
@@ -222,6 +228,7 @@ public sealed partial class DialoguePlayback
 			PlaybackHandler?.OnPlaybackEvaluateCommand(this, commands[i]);
 		}
 
+		_hasRanCommands = true;
 		return false;
 	}
 
@@ -280,7 +287,7 @@ public sealed partial class DialoguePlayback
 					break;
 				}
 
-				string value = command.Parameters[1..].Join();
+				string value = command.Parameters[1..].Join(" ");
 
 				// The command name set only supports float and string
 				if (!float.TryParse(value, out float f)) {
@@ -301,6 +308,17 @@ public sealed partial class DialoguePlayback
 				}
 
 				SetVariable(command.Parameters[0], true);
+				break;
+
+			case "print":
+				if (command.Parameters?.Length < 1) {
+					GD.PrintErr(
+						"Dialogue script: invalid use of command '@print'",
+						"\nUsage: @print <text> ...");
+					break;
+				}
+
+				GD.Print("Dialogue Print: ", command.Parameters[1..].Join(" "));
 				break;
 		}
 

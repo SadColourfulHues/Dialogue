@@ -25,7 +25,7 @@ public sealed class DialogueParser
 	public static Regex RegexVars = new("\\$([\\w]+)", RegexOptions.Compiled);
 	public static Regex RegexCharacter = new("(\\w+):", RegexOptions.Compiled);
 	public static Regex RegexTag = new("\\[(\\w+)\\]", RegexOptions.Compiled);
-	public static Regex RegexCommand = new("@([\\w]+)( [\\w,\\s]+)?", RegexOptions.Compiled);
+	public static Regex RegexCommand = new("@([\\w]+)( .+)?", RegexOptions.Compiled);
 
 	readonly StringBuilder _dialogueLineBuilder;
 
@@ -211,18 +211,19 @@ public sealed class DialogueParser
 	{
 		Match match = RegexCommand.Match(line);
 
-		if (match.Groups[2].Length > 0) {
+		if (match.Groups[2].Success) {
 			_tmpCommands.Add(new() {
 				Name = match.Groups[1].Value,
 				Parameters = match.Groups[2].Value.Split(' ')
 			});
+
+			return;
 		}
-		else {
-			_tmpCommands.Add(new() {
-				Name = match.Groups[1].Value,
-				Parameters = null
-			});
-		}
+
+		_tmpCommands.Add(new() {
+			Name = match.Groups[1].Value,
+			Parameters = null
+		});
 	}
 
 	private string ParseTag(string line)

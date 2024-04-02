@@ -9,7 +9,7 @@ namespace SadChromaLib.Specialisations.Dialogue.Playback;
 public interface IDialoguePlaybackHandler
 {
     public void OnPlaybackPresentDialogue(string character, string dialogue);
-	public void OnPlaybackPresentChoices(ReadOnlySpan<DialogueChoice> choices);
+	public void OnPlaybackPresentChoices(DialogueChoice[] choices);
 	public void OnPlaybackEvaluateCommand(DialoguePlayback playbackRef, DialogueCommand command);
 	public void OnPlaybackCompleted(DialoguePlayback playbackRef);
 }
