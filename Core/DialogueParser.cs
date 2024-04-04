@@ -230,12 +230,24 @@ public sealed class DialogueParser
 	{
 		Match tagMatch = RegexTag.Match(line);
 
-		if (!tagMatch.Success) {
+		if (!tagMatch.Groups[1].Success) {
 			GD.PrintErr(line, " (Error: malformed tag attribute.)");
 			return line;
 		}
 
 		return tagMatch.Groups[1].Value;
+	}
+
+	public static string ParseCharacterName(string line)
+	{
+		Match characterMatch = RegexCharacter.Match(line);
+
+		if (!characterMatch.Groups[1].Success) {
+			GD.PrintErr(line, " (Error: malformed character block.)");
+			return line;
+		}
+
+		return characterMatch.Groups[1].Value;
 	}
 
 	#endregion
@@ -309,17 +321,10 @@ public sealed class DialogueParser
 				break;
 
 			case LineType.Character:
-				Match characterMatch = RegexCharacter.Match(line);
-
-				if (!characterMatch.Success) {
-					GD.PrintErr(line, " (Error: malformed character block.)");
-					break;
-				}
-
 				// (Note to future self)
 				// If a dialogue block has no data, this statement will be ran
 				// Instead of the state terminator at the start of this method
-				_tmpNode.CharacterId = characterMatch.Groups[1].Value;
+				_tmpNode.CharacterId = ParseCharacterName(line);
 				break;
 
 			case LineType.Dialogue:
