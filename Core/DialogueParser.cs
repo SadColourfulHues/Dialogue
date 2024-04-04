@@ -226,7 +226,7 @@ public sealed class DialogueParser
 		});
 	}
 
-	public string ParseTag(string line)
+	public static string ParseTag(string line)
 	{
 		Match tagMatch = RegexTag.Match(line);
 
