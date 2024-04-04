@@ -22,10 +22,10 @@ public sealed class DialogueParser
 	const int KNode = 0;
 	const int KChoice = 1;
 
-	public static Regex RegexVars = new("\\$([\\w]+)", RegexOptions.Compiled);
-	public static Regex RegexCharacter = new("(\\w+):", RegexOptions.Compiled);
-	public static Regex RegexTag = new("\\[(\\w+)\\]", RegexOptions.Compiled);
-	public static Regex RegexCommand = new("@([\\w]+)( .+)?", RegexOptions.Compiled);
+	public static Regex RegexVars = new("\\$([\\w\\d-_]+)", RegexOptions.Compiled);
+	public static Regex RegexCharacter = new("([\\d\\w+ '()]+):", RegexOptions.Compiled);
+	public static Regex RegexTag = new("\\[([\\d\\w-_]+)\\]", RegexOptions.Compiled);
+	public static Regex RegexCommand = new("@([\\d\\w-_]+)( .+)?", RegexOptions.Compiled);
 
 	readonly StringBuilder _dialogueLineBuilder;
 
@@ -405,7 +405,7 @@ public sealed class DialogueParser
 	/// <param name="str">The string to check</param>
 	/// <param name="minWhiteSpace">The minimum required amount of spaces that classifies as a 'tab'</param>
 	/// <returns></returns>
-	public static bool StartsWithTab(ReadOnlySpan<char> str, int minWhiteSpace = 4)
+	public static bool StartsWithTab(ReadOnlySpan<char> str, int minWhiteSpace = 2)
 	{
 		if (str.Length < 1 || str.Length < minWhiteSpace)
 			return false;
