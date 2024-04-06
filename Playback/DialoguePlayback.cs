@@ -14,6 +14,8 @@ namespace SadChromaLib.Specialisations.Dialogue.Playback;
 /// </summary>
 public sealed partial class DialoguePlayback
 {
+	public event Action<string> OnDialoguePrint;
+
 	public IDialoguePlaybackHandler PlaybackHandler;
 
 	DialogueGraph _dialogueGraphRef;
@@ -38,6 +40,9 @@ public sealed partial class DialoguePlayback
 		: this(playbackHandler)
 	{
 		SetData(graph);
+
+		// Default print handler
+		OnDialoguePrint += (string text) => GD.Print("Dialogue Print: ", text);
 	}
 
 	public DialoguePlayback(string graphPath, IDialoguePlaybackHandler playbackHandler)
@@ -55,6 +60,10 @@ public sealed partial class DialoguePlayback
 	#endregion
 
     #region Main Functions
+
+	public bool HasData() {
+		return _dialogueGraphRef is not null;
+	}
 
 	/// <summary>
     /// Sets the dialogue playback's dialogue graph (Use this before calling anything!)
@@ -318,7 +327,7 @@ public sealed partial class DialoguePlayback
 					break;
 				}
 
-				GD.Print("Dialogue Print: ", command.Parameters[1..].Join(" "));
+				OnDialoguePrint?.Invoke(command.Parameters[1..].Join(" "));
 				break;
 		}
 
