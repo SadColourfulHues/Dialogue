@@ -80,11 +80,17 @@ public sealed partial class DialoguePlayback
 	}
 
 	public bool GetCurrentCommands(ref ReadOnlySpan<DialogueCommand> commands) {
+		if (_currentIdx < 0 || _currentIdx >= _dialogueGraphRef.Nodes.Length)
+			return false;
+
 		commands = _dialogueGraphRef.Nodes[_currentIdx].CommandList.AsSpan();
 		return commands.Length > 0;
 	}
 
 	public bool GetCurrentChoices(ref ReadOnlySpan<DialogueChoice> choices) {
+		if (_currentIdx < 0 || _currentIdx >= _dialogueGraphRef.Nodes.Length)
+			return false;
+
 		choices = _dialogueGraphRef.Nodes[_currentIdx].Choices;
 		return choices.Length > 0;
 	}
