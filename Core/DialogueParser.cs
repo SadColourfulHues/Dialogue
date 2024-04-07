@@ -23,9 +23,13 @@ public sealed class DialogueParser
 	const int KChoice = 1;
 
 	public static Regex RegexVars = new("\\$([\\w\\d-_]+)", RegexOptions.Compiled);
-	public static Regex RegexCharacter = new("([\\d\\w+ '()]+):", RegexOptions.Compiled);
+	public static Regex RegexCharacter = new("([$\\d\\w+ '()]+):", RegexOptions.Compiled);
 	public static Regex RegexTag = new("\\[([\\d\\w-_]+)\\]", RegexOptions.Compiled);
-	public static Regex RegexCommand = new("@([\\d\\w-_]+)( .+)?", RegexOptions.Compiled);
+	public static Regex RegexCommand = new("@([\\d\\w-_]+)(?: )(.+)?", RegexOptions.Compiled);
+
+	// (Note: this is only meant to be used for detecting lines starting with BBcode.
+	// It most likely won't yield accurate extraction results.)
+	public static Regex RegexBBDialogue = new("(?:\\[[\\w\\d =#\"'-_]+\\])(?:.+)(?:\\[/[\\w\\d =\"'-_]+\\])", RegexOptions.Compiled);
 
 	readonly StringBuilder _dialogueLineBuilder;
 
@@ -37,10 +41,12 @@ public sealed class DialogueParser
 	DialogueNode _tmpNode;
 	DialogueChoice _tmpChoice;
 
+	readonly bool _canParseBBcode;
 	int? _nodeIdx;
 
-	public DialogueParser()
+	public DialogueParser(bool parseBB = false)
 	{
+		_canParseBBcode = parseBB;
 		_hasData = new bool[2];
 
 		_tmpNode = default;
@@ -89,7 +95,14 @@ public sealed class DialogueParser
 				if (line is null)
 					break;
 
-				LineType type = Identify(line.AsSpan());
+				LineType type;
+
+				if (_canParseBBcode) {
+					type = IdentifyBB(line);
+				}
+				else {
+					type = Identify(line.AsSpan());
+				}
 
 				// Skip irrelevant lines
 				if (type == LineType.Irrelevant || type == LineType.Comment)
@@ -200,6 +213,7 @@ public sealed class DialogueParser
 			return false;
 
 		_tmpChoices.Add(_tmpChoice);
+		GD.Print(_tmpChoice.ChoiceText, " - ", _tmpChoice.TargetTag);
 
 		_hasData[KChoice] = false;
 		_tmpChoice = default;
@@ -328,11 +342,12 @@ public sealed class DialogueParser
 				break;
 
 			case LineType.Dialogue:
-				if (_dialogueLineBuilder.Length < 1) {
+				if (!_hasData[KNode]) {
 					_dialogueLineBuilder.Append(line);
 				}
 				else {
-					_dialogueLineBuilder.AppendLine(line);
+					_dialogueLineBuilder.Append(" ");
+					_dialogueLineBuilder.Append(line);
 				}
 
 				_hasData[KNode] = true;
@@ -358,7 +373,14 @@ public sealed class DialogueParser
 		}
 
 		string innerLine = StripEmpty(line).ToString();
-		LineType innerType = Identify(innerLine.AsSpan());
+		LineType innerType;
+
+		if (_canParseBBcode) {
+			innerType = IdentifyBB(innerLine);
+		}
+		else {
+			innerType = Identify(innerLine.AsSpan());
+		}
 
 		/*
 			* choice block structure *
@@ -369,6 +391,8 @@ public sealed class DialogueParser
 			I choose red!	<- choice text
 			[red_chosen]	<- target tag
 		*/
+
+		GD.Print(innerType);
 
 		switch (innerType)
 		{
@@ -465,6 +489,45 @@ public sealed class DialogueParser
 			return LineType.Character;
 		}
 		else if (sline[0] == '[' && sline[^1] == ']') {
+			return LineType.Tag;
+		}
+		else if (sline[0] == '@') {
+			return LineType.Command;
+		}
+
+		return LineType.Dialogue;
+	}
+
+	/// <summary>
+	/// Identifies the line type with BBcode dialogue support
+	/// </summary>
+	/// <param name="line">The line to analyse</param>
+	/// <returns></returns>
+	public static LineType IdentifyBB(string line)
+	{
+		if (line.Length < 1)
+			return LineType.Irrelevant;
+
+		ReadOnlySpan<char> sline = StripEmpty(line);
+
+		if (line[0] == '#' || (sline.Length > 0 && sline[0] == '#')) {
+			return LineType.Comment;
+		}
+		else if (StartsWithTab(line)) {
+			return LineType.Choice;
+		}
+
+		if (sline.Length < 1)
+			return LineType.Irrelevant;
+
+		if (sline[^1] == ':') {
+			return LineType.Character;
+		}
+		else if (sline[0] == '[' && sline[^1] == ']') {
+			// BBcode dialogue check
+			if (RegexBBDialogue.Match(line).Success)
+				return LineType.Dialogue;
+
 			return LineType.Tag;
 		}
 		else if (sline[0] == '@') {

@@ -303,13 +303,48 @@ public sealed partial class DialoguePlayback
 				}
 
 				string value = command.Parameters[1..].Join(" ");
+				ReadOnlySpan<char> valueSpan = value.AsSpan();
 
-				// The command name set only supports float and string
-				if (!float.TryParse(value, out float f)) {
-					SetVariable(command.Parameters[0], f);
+				ParameterType valueType = ParameterType.Integer;
+				byte decimalCount = 0;
+
+				// Let's play... [ Guess the data type ]
+				for (int i = 0; i < valueSpan.Length; ++i) {
+					// Still a numerical type
+					if (char.IsNumber(valueSpan[i]))
+						continue;
+
+					// Could be a float?
+					if (valueSpan[i] == '.') {
+						valueType = ParameterType.Float;
+						decimalCount ++;
+						continue;
+					}
+
+					// Nope, it's a text string, WHY???!!! /j
+					valueType = ParameterType.Text;
+					break;
 				}
-				else {
-					SetVariable(command.Parameters[0], value);
+
+				switch (valueType)
+				{
+					case ParameterType.Integer:
+						SetVariable(command.Parameters[0], int.Parse(valueSpan));
+						break;
+
+					case ParameterType.Float:
+						// Malformed float value, default to text
+						if (decimalCount != 1) {
+							SetVariable(command.Parameters[0], value);
+							break;
+						}
+
+						SetVariable(command.Parameters[0], float.Parse(valueSpan));
+						break;
+
+					case ParameterType.Text:
+						SetVariable(command.Parameters[0], value);
+						break;
 				}
 
 				break;
@@ -487,4 +522,11 @@ public sealed partial class DialoguePlayback
 	}
 
 	#endregion
+
+	private enum ParameterType: byte
+	{
+		Integer,
+		Float,
+		Text
+	}
 }
