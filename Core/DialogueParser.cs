@@ -23,7 +23,7 @@ public sealed class DialogueParser
 	const int KChoice = 1;
 
 	public static Regex RegexVars = new("\\$([\\w\\d-_]+)", RegexOptions.Compiled);
-	public static Regex RegexCharacter = new("([$\\d\\w+ '()]+):", RegexOptions.Compiled);
+	public static Regex RegexCharacter = new("([$\\d\\w+ '()#-_?!]+):", RegexOptions.Compiled);
 	public static Regex RegexTag = new("\\[([\\d\\w-_]+)\\]", RegexOptions.Compiled);
 	public static Regex RegexCommand = new("@([\\d\\w-_]+)(?: )(.+)?", RegexOptions.Compiled);
 
