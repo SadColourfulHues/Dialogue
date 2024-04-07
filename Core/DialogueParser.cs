@@ -213,7 +213,6 @@ public sealed class DialogueParser
 			return false;
 
 		_tmpChoices.Add(_tmpChoice);
-		GD.Print(_tmpChoice.ChoiceText, " - ", _tmpChoice.TargetTag);
 
 		_hasData[KChoice] = false;
 		_tmpChoice = default;
@@ -391,8 +390,6 @@ public sealed class DialogueParser
 			I choose red!	<- choice text
 			[red_chosen]	<- target tag
 		*/
-
-		GD.Print(innerType);
 
 		switch (innerType)
 		{
