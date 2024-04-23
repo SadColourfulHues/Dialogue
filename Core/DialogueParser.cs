@@ -34,9 +34,9 @@ public sealed class DialogueParser
 	readonly StringBuilder _dialogueLineBuilder;
 
 	readonly bool[] _hasData;
-	readonly XArray<DialogueNode> _tmpNodes;
-	readonly XArray<DialogueChoice> _tmpChoices;
-	readonly XArray<DialogueCommand> _tmpCommands;
+	readonly VArray<DialogueNode> _tmpNodes;
+	readonly VArray<DialogueChoice> _tmpChoices;
+	readonly VArray<DialogueCommand> _tmpCommands;
 
 	DialogueNode _tmpNode;
 	DialogueChoice _tmpChoice;
@@ -154,7 +154,10 @@ public sealed class DialogueParser
 		// loading 'res://' files. (or what currently happens, atm [Godot 4.2])
 
 		if (!GFAccess.FileExists(filePath)) {
+			#if TOOLS
 			GD.PrintErr($"DialogueParser: \"{filePath}\" does not exist!");
+			#endif
+
 			return false;
 		}
 
@@ -244,7 +247,10 @@ public sealed class DialogueParser
 		Match tagMatch = RegexTag.Match(line);
 
 		if (!tagMatch.Groups[1].Success) {
+			#if TOOLS
 			GD.PrintErr(line, " (Error: malformed tag attribute.)");
+			#endif
+
 			return line;
 		}
 
@@ -256,7 +262,10 @@ public sealed class DialogueParser
 		Match characterMatch = RegexCharacter.Match(line);
 
 		if (!characterMatch.Groups[1].Success) {
+			#if TOOLS
 			GD.PrintErr(line, " (Error: malformed character block.)");
+			#endif
+
 			return line;
 		}
 
